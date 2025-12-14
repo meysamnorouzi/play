@@ -1,0 +1,109 @@
+
+variables:
+  PRODUCTION_URL: 
+  STAGING_URL: 
+
+stages:
+  - build
+  - deploy
+  - logs
+
+###########################################
+## Stage Enviroment
+###########################################
+build-image-stage:
+  stage: build
+  needs: []
+  environment:
+    name: stage
+    url: $STAGING_URL
+  only:
+    - stage
+  tags:
+    - build
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE:stage"  --build-arg TAG=stage --build-arg BUILD_ENV=stage .
+    - docker push "$CI_REGISTRY_IMAGE:stage"
+
+deploy-stage:
+  stage: deploy
+  needs: [build-image-stage]
+  environment:
+    name: stage
+    url: $STAGING_URL
+  only:
+    - stage
+  tags:
+    - stage
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:stage
+  script:
+    - docker compose -f  /data/services/fabrinow/docker-compose.yml up -d parent-panel
+
+
+logs-stage:
+  stage: logs
+  needs: [deploy-stage]
+  #environment:
+  #  name: stage
+  #  url: $STAGING_URL
+  only:
+    - stage
+  tags:
+    - stage
+  script:
+    - docker logs frontend --tail 100
+    - echo "End of Log Frontend service on stage"
+###########################################
+## Production Enviroment
+###########################################
+build-image-prod:
+  stage: build
+  needs: []
+  environment:
+    name: prod
+    url: $PRODUCTION_URL
+  only:
+    - master
+  tags:
+    - build
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE:prod" --build-arg TAG=prod --build-arg  BUILD_ENV=prod .
+    - docker push "$CI_REGISTRY_IMAGE:prod"
+
+
+deploy-prod:
+  stage: deploy
+  needs: [build-image-prod]
+  environment:
+    name: prod
+    url: $PRODUCTION_URL
+  only:
+    - master
+  tags:
+    - prod
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:prod
+  script:
+    - docker compose -f  /data/services/fabrinow/docker-compose.yml up -d parent-panel
+  when: manual
+  
+logs-prod:
+  stage: logs
+  needs: [deploy-prod]
+  #environment:
+  #  name: prod
+  #  url: $PRODUCTION_URL
+  only:
+    - master
+  tags:
+    - prod
+  script:
+    - docker logs frontend --tail 100
+    - echo "End of Log Frontend service on production"
