@@ -1,4 +1,5 @@
 import { AiOutlineClose, AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineFileText } from 'react-icons/ai'
+import { CurrencyDollarIcon } from '@heroicons/react/24/outline'
 
 interface Child {
   id: string;
@@ -105,8 +106,9 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                           {task.category}
                         </span>
                         <span className="text-gray-500">{formatDate(task.date)}</span>
-                        <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full font-medium">
-                          {task.points || 0} پوینت
+                        <span className="bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium border border-yellow-200 flex items-center gap-1">
+                          <CurrencyDollarIcon className="w-3 h-3" />
+                          {task.points || 0} دیجیت
                         </span>
                       </div>
                     </div>

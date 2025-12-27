@@ -18,7 +18,6 @@ interface AddChildModalProps {
     firstName: string;
     lastName: string;
     nationalId: string;
-    password: string;
     birthDate: string;
     avatar: string;
   }) => void;
@@ -29,7 +28,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
     firstName: '',
     lastName: '',
     nationalId: '',
-    password: '',
     birthDate: '',
     avatar: AVATARS[0],
   });
@@ -63,12 +61,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
       newErrors.nationalId = 'کد ملی باید فقط عدد باشد';
     }
 
-    if (!formData.password.trim()) {
-      newErrors.password = 'رمز عبور الزامی است';
-    } else if (formData.password.length < 4) {
-      newErrors.password = 'رمز عبور باید حداقل 4 کاراکتر باشد';
-    }
-
     if (!formData.birthDate.trim()) {
       newErrors.birthDate = 'تاریخ تولد الزامی است';
     }
@@ -85,7 +77,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
         firstName: '',
         lastName: '',
         nationalId: '',
-        password: '',
         birthDate: '',
         avatar: AVATARS[0],
       });
@@ -100,7 +91,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
       firstName: '',
       lastName: '',
       nationalId: '',
-      password: '',
       birthDate: '',
       avatar: AVATARS[0],
     });
@@ -225,26 +215,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
           />
           {errors.nationalId && (
             <p className="text-red-500 text-sm mt-1">{errors.nationalId}</p>
-          )}
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            رمز عبور
-          </label>
-          <input
-            type="password"
-            value={formData.password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all ${
-              errors.password ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="رمز عبور را وارد کنید"
-            dir="ltr"
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
           )}
         </div>
 

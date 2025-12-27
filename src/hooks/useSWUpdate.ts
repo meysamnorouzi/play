@@ -12,18 +12,23 @@ export function useSWUpdate(): UpdateSWResult {
 
   useEffect(() => {
     let refreshing = false
+    let updateInterval: number | undefined
 
-    // Listen for service worker updates
-    const updateAvailable = (registration: ServiceWorkerRegistration) => {
-      setNeedRefresh(true)
-      
-      // Skip waiting and reload if user wants
+    // Check if there's a waiting service worker
+    const checkForUpdates = (registration: ServiceWorkerRegistration) => {
+      // Check if there's already a waiting service worker
+      if (registration.waiting) {
+        setNeedRefresh(true)
+        return
+      }
+
+      // Listen for new service worker installation
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New service worker available
+            // Only show notification when new worker is installed and waiting
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller && registration.waiting) {
               setNeedRefresh(true)
             }
           })
@@ -37,6 +42,15 @@ export function useSWUpdate(): UpdateSWResult {
       console.log('App ready to work offline')
     }
 
+    // Listen for custom update available event
+    const updateAvailableHandler = () => {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        if (registration?.waiting) {
+          setNeedRefresh(true)
+        }
+      })
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return
@@ -46,20 +60,24 @@ export function useSWUpdate(): UpdateSWResult {
 
       // Check for updates
       navigator.serviceWorker.ready.then((registration) => {
-        registration.update()
-        updateAvailable(registration)
+        checkForUpdates(registration)
+        // Periodically check for updates (every hour)
+        updateInterval = window.setInterval(() => {
+          registration.update()
+        }, 60 * 60 * 1000)
       })
 
       // Listen for custom events from service worker
       window.addEventListener('sw:offlineReady', offlineReadyHandler)
-      window.addEventListener('sw:updateAvailable', () => {
-        setNeedRefresh(true)
-      })
+      window.addEventListener('sw:updateAvailable', updateAvailableHandler)
     }
 
     return () => {
       window.removeEventListener('sw:offlineReady', offlineReadyHandler)
-      window.removeEventListener('sw:updateAvailable', () => {})
+      window.removeEventListener('sw:updateAvailable', updateAvailableHandler)
+      if (updateInterval !== undefined) {
+        clearInterval(updateInterval)
+      }
     }
   }, [])
 

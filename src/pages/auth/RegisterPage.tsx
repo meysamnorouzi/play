@@ -150,48 +150,50 @@ const RegisterPage = () => {
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-            کد تایید
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              id="otp"
-              value={formData.otp}
-              onChange={(e) => {
-                setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '').slice(0, 6) });
-                setError('');
-              }}
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-2 focus:ring-gray-300 outline-none transition-all text-center tracking-widest text-lg"
-              placeholder="------"
-              dir="ltr"
-              maxLength={6}
-              disabled={loading}
-              required
-            />
-            {!otpSent && (
+        {!otp && (
+          <div className="space-y-2">
+            <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
+              کد تایید
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                id="otp"
+                value={formData.otp}
+                onChange={(e) => {
+                  setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '').slice(0, 6) });
+                  setError('');
+                }}
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-2 focus:ring-gray-300 outline-none transition-all text-center tracking-widest text-lg"
+                placeholder="------"
+                dir="ltr"
+                maxLength={6}
+                disabled={loading}
+                required
+              />
+              {!otpSent && (
+                <button
+                  type="button"
+                  onClick={handleRequestOTP}
+                  disabled={loading}
+                  className="px-4 py-3 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium rounded-xl transition-all whitespace-nowrap"
+                >
+                  ارسال کد
+                </button>
+              )}
+            </div>
+            {otpSent && (
               <button
                 type="button"
                 onClick={handleRequestOTP}
                 disabled={loading}
-                className="px-4 py-3 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700 font-medium rounded-xl transition-all whitespace-nowrap"
+                className="w-full text-sm text-gray-500 hover:text-gray-700 disabled:text-gray-400"
               >
-                ارسال کد
+                ارسال مجدد کد تایید
               </button>
             )}
           </div>
-          {otpSent && (
-            <button
-              type="button"
-              onClick={handleRequestOTP}
-              disabled={loading}
-              className="w-full text-sm text-gray-500 hover:text-gray-700 disabled:text-gray-400"
-            >
-              ارسال مجدد کد تایید
-            </button>
-          )}
-        </div>
+        )}
 
         <button
           type="submit"

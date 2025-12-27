@@ -4,10 +4,14 @@ import { useAuth } from '../../context/AuthContext'
 import { 
   WalletIcon, 
   ArrowDownTrayIcon, 
-  ArrowUpTrayIcon,
   ChartBarIcon,
-  ArrowTrendingDownIcon
+  ArrowTrendingDownIcon,
+  ArrowsRightLeftIcon,
+  CheckIcon,
+  CurrencyDollarIcon,
+  ArrowLeftIcon
 } from '@heroicons/react/24/outline'
+import Modal from '../../components/Modal'
 import { 
   AiOutlineWallet, 
   AiOutlineShopping, 
@@ -42,6 +46,24 @@ function WalletPage() {
     totalExpense: 0,
     transactionsCount: 0
   })
+  const [showDepositModal, setShowDepositModal] = useState(false)
+  const [showTransferModal, setShowTransferModal] = useState(false)
+  const [depositAmount, setDepositAmount] = useState('')
+  const [transferAmount, setTransferAmount] = useState('')
+  const [selectedChildId, setSelectedChildId] = useState<string>('')
+  const [isCardFlipped, setIsCardFlipped] = useState(false)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  
+  // Parent wallet state
+  const [parentMoneyBalance, setParentMoneyBalance] = useState<number>(0)
+  const [parentDigitBalance, setParentDigitBalance] = useState<number>(0)
+  
+  // Transfer flow state
+  const [transferType, setTransferType] = useState<'money' | 'digit' | null>(null)
+  const [chargeAmount, setChargeAmount] = useState('')
+  const [insufficientBalance, setInsufficientBalance] = useState(false)
 
   // Get account owner name
   const accountOwnerName = user?.firstName && user?.lastName
@@ -50,7 +72,29 @@ function WalletPage() {
 
   useEffect(() => {
     loadWalletData()
+    loadParentWallet()
   }, [])
+
+  const loadParentWallet = () => {
+    // Load parent wallet (money and digits)
+    const parentWalletKey = 'parentWallet'
+    const storedParentWallet = localStorage.getItem(parentWalletKey)
+    
+    if (storedParentWallet) {
+      const walletData = JSON.parse(storedParentWallet)
+      setParentMoneyBalance(walletData.money || 0)
+      setParentDigitBalance(walletData.digits || 0)
+    } else {
+      // Initialize with default values
+      const defaultWallet = {
+        money: 10000000, // 10 million Toman
+        digits: 1000 // 1000 digits
+      }
+      localStorage.setItem(parentWalletKey, JSON.stringify(defaultWallet))
+      setParentMoneyBalance(defaultWallet.money)
+      setParentDigitBalance(defaultWallet.digits)
+    }
+  }
 
   const loadWalletData = () => {
     // Load children
@@ -168,7 +212,7 @@ function WalletPage() {
               allActivities.push({
                 id: `task_${activity.id}`,
                 title: `پاداش: ${activity.title}`,
-                amount: activity.points * 10000, // Convert points to money
+                amount: activity.points * 10000, // Convert digits to money
                 type: 'income' as const,
                 date: activity.date || Date.now(),
                 icon: 'wallet',
@@ -279,6 +323,95 @@ function WalletPage() {
     return child ? `${child.firstName} ${child.lastName}` : 'نامشخص'
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    setTouchStart(touch.clientX)
+    setTouchEnd(null)
+    setIsDragging(true)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStart !== null) {
+      e.preventDefault()
+      const touch = e.touches[0]
+      setTouchEnd(touch.clientX)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (touchStart !== null && touchEnd !== null) {
+      const distance = touchStart - touchEnd
+      const minSwipeDistance = 50
+
+      if (Math.abs(distance) > minSwipeDistance) {
+        if (distance > 0) {
+          // Swipe left (RTL) - flip to back
+          setIsCardFlipped(true)
+        } else {
+          // Swipe right (RTL) - flip to front
+          setIsCardFlipped(false)
+        }
+      }
+    }
+    
+    // Reset after a short delay to prevent click event
+    setTimeout(() => {
+      setTouchStart(null)
+      setTouchEnd(null)
+      setIsDragging(false)
+    }, 100)
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setTouchStart(e.clientX)
+    setTouchEnd(null)
+    setIsDragging(true)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (touchStart !== null && isDragging) {
+      setTouchEnd(e.clientX)
+    }
+  }
+
+  const handleMouseUp = () => {
+    if (touchStart !== null && touchEnd !== null) {
+      const distance = touchStart - touchEnd
+      const minSwipeDistance = 50
+
+      if (Math.abs(distance) > minSwipeDistance) {
+        if (distance > 0) {
+          // Swipe left (RTL) - flip to back
+          setIsCardFlipped(true)
+        } else {
+          // Swipe right (RTL) - flip to front
+          setIsCardFlipped(false)
+        }
+      }
+    }
+    
+    // Reset after a short delay to prevent click event
+    setTimeout(() => {
+      setTouchStart(null)
+      setTouchEnd(null)
+      setIsDragging(false)
+    }, 100)
+  }
+
+  const handleCardClick = () => {
+    // Only flip on click if it wasn't a drag
+    // Check if mouse moved less than 10px (click, not drag)
+    if (touchStart !== null && touchEnd !== null) {
+      const moveDistance = Math.abs(touchStart - touchEnd)
+      if (moveDistance < 10) {
+        setIsCardFlipped(!isCardFlipped)
+      }
+    } else {
+      // If no drag was detected, it's a click
+      setIsCardFlipped(!isCardFlipped)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <div className="bg-white min-h-screen px-4 py-6 max-w-4xl mx-auto">
@@ -288,33 +421,182 @@ function WalletPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative bg-black rounded-2xl p-6 overflow-hidden aspect-video"
+            className="relative w-full"
+            style={{ 
+              perspective: '1000px',
+              touchAction: 'pan-x',
+              userSelect: 'none',
+              WebkitUserSelect: 'none'
+            }}
           >
-            {/* Main Content */}
-            <div className="relative z-10 h-full flex flex-col justify-between">
-              {/* Balance Display - Center */}
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-white text-4xl font-bold mb-1">
-                    {formatBalance(totalBalance)}
-                  </p>
-                  <p className="text-white/70 text-sm font-medium">تومان</p>
+            <div
+              className="relative w-full cursor-pointer"
+              style={{ 
+                transformStyle: 'preserve-3d',
+                transform: isCardFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                pointerEvents: 'auto'
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation()
+                handleTouchStart(e)
+              }}
+              onTouchMove={(e) => {
+                e.stopPropagation()
+                handleTouchMove(e)
+              }}
+              onTouchEnd={(e) => {
+                e.stopPropagation()
+                handleTouchEnd()
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                handleMouseDown(e)
+              }}
+              onMouseMove={(e) => {
+                e.stopPropagation()
+                handleMouseMove(e)
+              }}
+              onMouseUp={(e) => {
+                e.stopPropagation()
+                handleMouseUp()
+              }}
+              onMouseLeave={(e) => {
+                e.stopPropagation()
+                handleMouseUp()
+              }}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleCardClick()
+              }}
+            >
+              {/* Front of Card */}
+              <div 
+                className="relative bg-black rounded-2xl p-6 overflow-hidden aspect-video cursor-pointer select-none"
+                style={{ 
+                  backfaceVisibility: 'hidden', 
+                  WebkitBackfaceVisibility: 'hidden',
+                  pointerEvents: 'auto'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Check if it was a click (not drag)
+                  if (touchStart !== null && touchEnd !== null) {
+                    const moveDistance = Math.abs(touchStart - touchEnd)
+                    if (moveDistance < 10) {
+                      setIsCardFlipped(!isCardFlipped)
+                    }
+                  } else {
+                    setIsCardFlipped(!isCardFlipped)
+                  }
+                }}
+              >
+                {/* Card Pattern Background */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16"></div>
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12"></div>
+                </div>
+
+                {/* Main Content */}
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                  {/* Top Section - Card Type */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/70 text-xs font-medium mb-1">کارت بانکی</p>
+                      <p className="text-white text-sm font-semibold">Debit Card</p>
+                    </div>
+                    <div className="text-white/90">
+                      <WalletIcon className="w-8 h-8" />
+                    </div>
+                  </div>
+
+                  {/* Balance Display - Center */}
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-white text-4xl font-bold mb-1">
+                        {formatBalance(totalBalance)}
+                      </p>
+                      <p className="text-white/70 text-sm font-medium">تومان</p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Section */}
+                  <div className="flex items-end justify-between mt-auto">
+                    {/* Left Side - Account Owner */}
+                    <div>
+                      <p className="text-white/70 text-xs font-medium mb-1">صاحب حساب</p>
+                      <p className="text-white text-sm font-semibold">{accountOwnerName}</p>
+                    </div>
+
+                    {/* Right Side - Card Number */}
+                    <div className="text-left">
+                      <p className="text-white text-sm font-semibold tracking-wider">
+                        •••• •••• •••• 1214
+                      </p>
+                      <p className="text-white/70 text-xs mt-1">12/24</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Section */}
-              <div className="flex items-end justify-between mt-auto">
-                {/* Left Side - Account Owner */}
-                <div>
-                  <p className="text-white/70 text-xs font-medium mb-1">صاحب حساب</p>
-                  <p className="text-white text-sm font-semibold">{accountOwnerName}</p>
+              {/* Back of Card */}
+              <div 
+                className="absolute inset-0 bg-black rounded-2xl p-6 overflow-hidden aspect-video select-none cursor-pointer"
+                style={{ 
+                  backfaceVisibility: 'hidden', 
+                  WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  pointerEvents: 'auto'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Check if it was a click (not drag)
+                  if (touchStart !== null && touchEnd !== null) {
+                    const moveDistance = Math.abs(touchStart - touchEnd)
+                    if (moveDistance < 10) {
+                      setIsCardFlipped(!isCardFlipped)
+                    }
+                  } else {
+                    setIsCardFlipped(!isCardFlipped)
+                  }
+                }}
+              >
+                {/* Card Pattern Background */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mt-16"></div>
+                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full -mr-12 -mb-12"></div>
                 </div>
 
-                {/* Right Side - Card Number */}
-                <div className="text-left">
-                  <p className="text-white text-sm font-semibold tracking-wider">
-                    •••• •••• •••• 1214
-                  </p>
+                {/* Back Content */}
+                <div className="relative z-10 h-full flex flex-col justify-between">
+                  {/* Top Section */}
+                  <div className="h-12 bg-white/20 rounded-lg"></div>
+
+                  {/* Middle Section - CVV */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div className="bg-white/10 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-white/70 text-xs">CVV</p>
+                        <p className="text-white text-lg font-bold tracking-widest">123</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Section - Additional Info */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-white/70 text-xs">شماره کارت</p>
+                      <p className="text-white text-sm font-semibold tracking-wider">1214 5678 9012 3456</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-white/70 text-xs">تاریخ انقضا</p>
+                      <p className="text-white text-sm font-semibold">12/24</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-white/70 text-xs">صاحب کارت</p>
+                      <p className="text-white text-sm font-semibold">{accountOwnerName}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -322,9 +604,18 @@ function WalletPage() {
 
           {/* Pagination Dots */}
           <div className="flex justify-center gap-2 mt-4 mb-4">
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-            <div className="w-2 h-2 rounded-full bg-black"></div>
-            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+            <button
+              onClick={() => setIsCardFlipped(false)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                !isCardFlipped ? 'bg-black w-6' : 'bg-gray-300'
+              }`}
+            />
+            <button
+              onClick={() => setIsCardFlipped(true)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                isCardFlipped ? 'bg-black w-6' : 'bg-gray-300'
+              }`}
+            />
           </div>
 
           {/* Action Buttons */}
@@ -332,14 +623,16 @@ function WalletPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => setShowTransferModal(true)}
               className="flex-1 flex items-center justify-center gap-2 bg-black text-white px-4 py-3 rounded-xl font-semibold transition-all"
             >
-              <ArrowUpTrayIcon className="w-5 h-5" />
-              <span>برداشت</span>
+              <ArrowsRightLeftIcon className="w-5 h-5" />
+              <span>انتقال</span>
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => setShowDepositModal(true)}
               className="flex-1 flex items-center justify-center gap-2 bg-black text-white px-4 py-3 rounded-xl font-semibold transition-all"
             >
               <ArrowDownTrayIcon className="w-5 h-5" />
@@ -503,6 +796,338 @@ function WalletPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Deposit Modal */}
+      <Modal
+        isOpen={showDepositModal}
+        onClose={() => {
+          setShowDepositModal(false)
+          setDepositAmount('')
+        }}
+        title="واریز وجه"
+        maxHeight="70vh"
+      >
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="depositAmount" className="block text-sm font-semibold text-gray-700">
+              مبلغ واریز (تومان)
+            </label>
+            <input
+              type="number"
+              id="depositAmount"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-300 outline-none transition-all"
+              placeholder="مثال: 1000000"
+              dir="ltr"
+              min="1"
+            />
+          </div>
+
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              const amount = parseFloat(depositAmount)
+              if (amount > 0) {
+                // Update parent wallet
+                const parentWalletKey = 'parentWallet'
+                const storedParentWallet = localStorage.getItem(parentWalletKey)
+                const walletData = storedParentWallet ? JSON.parse(storedParentWallet) : { money: 0, digits: 0 }
+                walletData.money = (walletData.money || 0) + amount
+                localStorage.setItem(parentWalletKey, JSON.stringify(walletData))
+                
+                // Reload parent wallet
+                loadParentWallet()
+                
+                // Close modal
+                setShowDepositModal(false)
+                setDepositAmount('')
+              }
+            }}
+            disabled={!depositAmount || parseFloat(depositAmount) <= 0}
+            className="w-full bg-gradient-to-br from-gray-800 to-gray-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <CheckIcon className="w-6 h-6" />
+            <span>واریز وجه</span>
+          </motion.button>
+        </div>
+      </Modal>
+
+      {/* Transfer Modal */}
+      <Modal
+        isOpen={showTransferModal}
+        onClose={() => {
+          setShowTransferModal(false)
+          setTransferAmount('')
+          setSelectedChildId('')
+          setTransferType(null)
+          setInsufficientBalance(false)
+        }}
+        title={transferType === null ? "انتقال" : transferType === 'money' ? "انتقال وجه" : "انتقال دیجیت"}
+        maxHeight="70vh"
+      >
+        <div className="space-y-6">
+          {children.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 text-sm">برای انتقال ابتدا باید فرزندی اضافه کنید</p>
+            </div>
+          ) : transferType === null ? (
+            // Step 1: Choose transfer type
+            <>
+              <p className="text-sm text-gray-600 text-center mb-4">نوع انتقال را انتخاب کنید</p>
+              <div className="grid grid-cols-2 gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setTransferType('money')}
+                  className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 border-gray-200 hover:border-gray-900 transition-all bg-white"
+                >
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <WalletIcon className="w-8 h-8 text-gray-700" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-gray-900 mb-1">انتقال وجه</p>
+                    <p className="text-xs text-gray-500">موجودی: {formatBalance(parentMoneyBalance)} تومان</p>
+                  </div>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setTransferType('digit')}
+                  className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 border-yellow-200 hover:border-yellow-500 transition-all bg-yellow-50"
+                >
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <CurrencyDollarIcon className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-yellow-700 mb-1">انتقال دیجیت</p>
+                    <p className="text-xs text-yellow-600">موجودی: {formatBalance(parentDigitBalance)} دیجیت</p>
+                  </div>
+                </motion.button>
+              </div>
+            </>
+          ) : insufficientBalance ? (
+            // Step: Insufficient balance - show charge flow
+            <>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                <p className="text-red-700 text-sm font-semibold mb-2">
+                  موجودی کافی نیست!
+                </p>
+                <p className="text-red-600 text-xs">
+                  موجودی فعلی شما: {transferType === 'money' 
+                    ? `${formatBalance(parentMoneyBalance)} تومان` 
+                    : `${formatBalance(parentDigitBalance)} دیجیت`}
+                </p>
+                <p className="text-red-600 text-xs mt-1">
+                  مبلغ درخواستی: {transferType === 'money' 
+                    ? `${formatBalance(parseFloat(transferAmount) || 0)} تومان` 
+                    : `${formatBalance(parseFloat(transferAmount) || 0)} دیجیت`}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="chargeAmount" className="block text-sm font-semibold text-gray-700">
+                  مبلغ شارژ ({transferType === 'money' ? 'تومان' : 'دیجیت'})
+                </label>
+                <input
+                  type="number"
+                  id="chargeAmount"
+                  value={chargeAmount}
+                  onChange={(e) => setChargeAmount(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-300 outline-none transition-all"
+                  placeholder={transferType === 'money' ? "مثال: 1000000" : "مثال: 500"}
+                  dir="ltr"
+                  min="1"
+                />
+                <p className="text-xs text-gray-500">
+                  حداقل مبلغ: {transferType === 'money' 
+                    ? formatBalance(parseFloat(transferAmount) - parentMoneyBalance) + ' تومان'
+                    : formatBalance(parseFloat(transferAmount) - parentDigitBalance) + ' دیجیت'}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setInsufficientBalance(false)
+                    setChargeAmount('')
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all"
+                >
+                  <ArrowLeftIcon className="w-5 h-5 inline ml-2" />
+                  بازگشت
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    const charge = parseFloat(chargeAmount)
+                    const required = transferType === 'money' 
+                      ? parseFloat(transferAmount) - parentMoneyBalance
+                      : parseFloat(transferAmount) - parentDigitBalance
+                    
+                    if (charge >= required && charge > 0) {
+                      // Charge the wallet
+                      const parentWalletKey = 'parentWallet'
+                      const storedParentWallet = localStorage.getItem(parentWalletKey)
+                      const walletData = storedParentWallet ? JSON.parse(storedParentWallet) : { money: 0, digits: 0 }
+                      
+                      if (transferType === 'money') {
+                        walletData.money = (walletData.money || 0) + charge
+                      } else {
+                        walletData.digits = (walletData.digits || 0) + charge
+                      }
+                      
+                      localStorage.setItem(parentWalletKey, JSON.stringify(walletData))
+                      loadParentWallet()
+                      setInsufficientBalance(false)
+                      setChargeAmount('')
+                    }
+                  }}
+                  disabled={!chargeAmount || parseFloat(chargeAmount) <= 0}
+                  className="flex-1 bg-gradient-to-br from-gray-800 to-gray-900 text-white py-3 rounded-xl font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <CheckIcon className="w-5 h-5" />
+                  شارژ کیف پول
+                </motion.button>
+              </div>
+            </>
+          ) : (
+            // Step 2: Select child and enter amount
+            <>
+              <div className="space-y-2">
+                <label htmlFor="transferChild" className="block text-sm font-semibold text-gray-700">
+                  انتخاب فرزند
+                </label>
+                <select
+                  id="transferChild"
+                  value={selectedChildId}
+                  onChange={(e) => setSelectedChildId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-300 outline-none transition-all"
+                >
+                  <option value="">انتخاب کنید...</option>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.firstName} {child.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="transferAmount" className="block text-sm font-semibold text-gray-700">
+                  {transferType === 'money' ? 'مبلغ انتقال (تومان)' : 'مقدار دیجیت'}
+                </label>
+                <input
+                  type="number"
+                  id="transferAmount"
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-300 outline-none transition-all"
+                  placeholder={transferType === 'money' ? "مثال: 500000" : "مثال: 100"}
+                  dir="ltr"
+                  min="1"
+                />
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-500">موجودی شما:</span>
+                  <span className={`font-semibold ${transferType === 'money' ? 'text-gray-700' : 'text-yellow-600'}`}>
+                    {transferType === 'money' 
+                      ? `${formatBalance(parentMoneyBalance)} تومان`
+                      : `${formatBalance(parentDigitBalance)} دیجیت`}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setTransferType(null)
+                    setTransferAmount('')
+                    setSelectedChildId('')
+                    setInsufficientBalance(false)
+                  }}
+                  className="px-4 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all"
+                >
+                  <ArrowLeftIcon className="w-5 h-5 inline ml-2" />
+                  بازگشت
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    const amount = parseFloat(transferAmount)
+                    const hasEnough = transferType === 'money' 
+                      ? parentMoneyBalance >= amount
+                      : parentDigitBalance >= amount
+                    
+                    if (!hasEnough) {
+                      setInsufficientBalance(true)
+                      return
+                    }
+                    
+                    // Perform transfer
+                    const parentWalletKey = 'parentWallet'
+                    const storedParentWallet = localStorage.getItem(parentWalletKey)
+                    const walletData = storedParentWallet ? JSON.parse(storedParentWallet) : { money: 0, digits: 0 }
+                    
+                    // Deduct from parent
+                    if (transferType === 'money') {
+                      walletData.money = (walletData.money || 0) - amount
+                    } else {
+                      walletData.digits = (walletData.digits || 0) - amount
+                    }
+                    localStorage.setItem(parentWalletKey, JSON.stringify(walletData))
+                    
+                    // Add to child wallet
+                    const childWalletKey = `childWallet_${selectedChildId}`
+                    const storedChildWallet = localStorage.getItem(childWalletKey)
+                    const childWalletData = storedChildWallet ? JSON.parse(storedChildWallet) : { balance: 0, digits: 0 }
+                    
+                    if (transferType === 'money') {
+                      childWalletData.balance = (childWalletData.balance || 0) + amount
+                    } else {
+                      childWalletData.digits = (childWalletData.digits || 0) + amount
+                    }
+                    localStorage.setItem(childWalletKey, JSON.stringify(childWalletData))
+                    
+                    // Add activity
+                    const activityKey = `childRecentActivities_${selectedChildId}`
+                    const storedActivities = localStorage.getItem(activityKey)
+                    const activities = storedActivities ? JSON.parse(storedActivities) : []
+                    activities.unshift({
+                      id: `transfer_${Date.now()}`,
+                      title: transferType === 'money' ? `انتقال وجه از والد` : `انتقال دیجیت از والد`,
+                      amount: transferType === 'money' ? amount : amount * 10000, // Convert digits to money for display
+                      type: 'income',
+                      date: Date.now(),
+                      icon: 'wallet',
+                      ...(transferType === 'digit' && { points: amount })
+                    })
+                    localStorage.setItem(activityKey, JSON.stringify(activities))
+                    
+                    // Reload data
+                    loadParentWallet()
+                    loadWalletData()
+                    
+                    // Close modal
+                    setShowTransferModal(false)
+                    setTransferAmount('')
+                    setSelectedChildId('')
+                    setTransferType(null)
+                    setInsufficientBalance(false)
+                  }}
+                  disabled={!transferAmount || !selectedChildId || parseFloat(transferAmount) <= 0}
+                  className="flex-1 bg-gradient-to-br from-gray-800 to-gray-900 text-white py-3 rounded-xl font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <CheckIcon className="w-5 h-5" />
+                  <span>انتقال {transferType === 'money' ? 'وجه' : 'دیجیت'}</span>
+                </motion.button>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

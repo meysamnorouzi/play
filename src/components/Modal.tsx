@@ -36,14 +36,14 @@ function Modal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-[9999] pointer-events-none">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm pointer-events-auto"
           />
 
           {/* Modal Content */}
@@ -52,12 +52,16 @@ function Modal({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className={`fixed bottom-0 left-0 right-0 ${backgroundColor} rounded-t-3xl shadow-2xl z-50 overflow-hidden transition-colors duration-500`}
-            style={{ maxHeight }}
+            className={`fixed bottom-0 left-0 right-0 ${backgroundColor} rounded-t-3xl shadow-2xl overflow-hidden transition-colors duration-500 flex flex-col pointer-events-auto`}
+            style={{ 
+              maxHeight,
+              height: 'auto',
+              minHeight: 'auto'
+            }}
           >
             {/* Handle bar */}
             {showHandleBar && (
-              <div className="flex justify-center pt-3 pb-2">
+              <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
                 <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
               </div>
             )}
@@ -66,7 +70,7 @@ function Modal({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="absolute top-6 left-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10"
+                className="absolute top-6 left-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10 flex-shrink-0"
               >
                 <XMarkIcon className="w-6 h-6 text-gray-600" />
               </button>
@@ -74,8 +78,7 @@ function Modal({
 
             {/* Modal body */}
             <div 
-              className="px-6 pb-8 pt-6 overflow-y-auto"
-              style={{ maxHeight: `calc(${maxHeight} - 4rem)` }}
+              className="px-6 pb-8 pt-6 overflow-y-auto flex-1 flex flex-col min-h-0"
             >
               {title && (
                 <motion.h2
@@ -97,7 +100,7 @@ function Modal({
               </motion.div>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   )

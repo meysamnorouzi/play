@@ -24,7 +24,7 @@ function SWUpdateNotification() {
     setShowOfflineReady(false)
   }
 
-  if (!needRefresh) {
+  if (needRefresh) {
     return (
       <div className="fixed top-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-96">
         <div className="bg-blue-600 text-white rounded-lg shadow-xl p-4 flex items-center justify-between gap-3">

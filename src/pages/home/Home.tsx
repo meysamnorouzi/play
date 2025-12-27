@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AiOutlineFileText, AiOutlineInbox, AiOutlineWallet, AiOutlineShopping, AiOutlineRest, AiOutlineUserAdd } from 'react-icons/ai'
 import { BsFlag, BsPeople } from 'react-icons/bs'
-import { UserGroupIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
+import { UserGroupIcon, PlusCircleIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import TasksModal from '../../components/home/TasksModal'
 import RequestsModal from '../../components/home/RequestsModal'
@@ -800,8 +800,9 @@ function Home() {
                                 <p className="text-xs text-gray-500">{formatTime(task.date)}</p>
                                 {getTaskStatusBadge(task.status)}
                                 {task.points > 0 && (
-                                  <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
-                                    {task.points} پوینت
+                                  <span className="text-xs text-yellow-700 bg-gradient-to-r from-yellow-50 to-yellow-100 px-2 py-0.5 rounded-full border border-yellow-200 flex items-center gap-1">
+                                    <CurrencyDollarIcon className="w-3 h-3" />
+                                    {task.points} دیجیت
                                   </span>
                                 )}
                               </div>

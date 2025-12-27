@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import ChildrenOnboarding from '../../components/children/ChildrenOnboarding';
 import AddChildModal from '../../components/children/AddChildModal';
 import { QRCodeSVG } from 'qrcode.react';
@@ -53,6 +53,7 @@ function ChildrenPage() {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Update time every minute
   useEffect(() => {
@@ -62,6 +63,33 @@ function ChildrenPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const calculateAge = (birthDate: string): number => {
+    if (!birthDate) return 0;
+    
+    // Parse Persian date (format: YYYY/MM/DD)
+    const parts = birthDate.split('/').map(Number);
+    if (parts.length !== 3) return 0;
+    
+    const [persianYear, persianMonth, persianDay] = parts;
+    
+    // Convert Persian date to Gregorian date
+    const gregorianYear = persianYear - 621;
+    
+    // Create a date object (approximate conversion)
+    const birth = new Date(gregorianYear, persianMonth - 1, persianDay);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    
+    // Cap age at 18
+    return Math.min(Math.max(age, 0), 18);
+  };
 
   useEffect(() => {
     // Check if user has seen this page before
@@ -109,7 +137,6 @@ function ChildrenPage() {
     firstName: string;
     lastName: string;
     nationalId: string;
-    password: string;
     birthDate: string;
     avatar: string;
   }) => {
@@ -119,6 +146,7 @@ function ChildrenPage() {
     const newChild: Child = {
       id: Date.now().toString(),
       ...childData,
+      password: '', // Default empty password
       isOnline,
       onlineSince: isOnline ? now : undefined,
       lastOnlineTime: isOnline ? undefined : now - Math.random() * 24 * 60 * 60 * 1000, // 0 to 24 hours ago
@@ -234,7 +262,12 @@ function ChildrenPage() {
                             <p className="text-xs text-gray-500 mb-1">
                               {getTimeStatus(child)}
                             </p>
-                            <div className="flex items-center gap-3 text-xs text-gray-600">
+                            <div className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
+                              {child.birthDate && (
+                                <span className="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
+                                  {calculateAge(child.birthDate)} سال
+                                </span>
+                              )}
                               <span>کد ملی: {child.nationalId}</span>
                             </div>
                           </div>
@@ -302,31 +335,68 @@ function ChildrenPage() {
         onClose={() => {
           setShowQRModal(false)
           setSelectedChild(null)
+          setCopied(false)
         }}
         title="کیوارکد ورود"
-        maxHeight="70vh"
+        maxHeight="80vh"
       >
-        {selectedChild && (
-          <div className="flex flex-col items-center justify-center py-6">
-            <div className="bg-white p-6 rounded-2xl shadow-lg mb-4">
-              <QRCodeSVG
-                value={JSON.stringify({
-                  childId: selectedChild.id,
-                  nationalId: selectedChild.nationalId,
-                  password: selectedChild.password,
-                  type: 'login'
-                })}
-                size={256}
-                level="H"
-                includeMargin={true}
-              />
+        {selectedChild && (() => {
+          const qrCodeValue = `https://parental-app.com/login?childId=${selectedChild.id}&nationalId=${selectedChild.nationalId}&type=login`;
+
+          const handleCopy = async () => {
+            try {
+              await navigator.clipboard.writeText(qrCodeValue);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+              console.error('Failed to copy:', err);
+            }
+          };
+
+          return (
+            <div className="flex flex-col items-center justify-center py-6 min-h-full">
+              <div className="bg-white p-6 rounded-2xl shadow-lg mb-4">
+                <QRCodeSVG
+                  value={qrCodeValue}
+                  size={256}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              <p className="text-sm text-gray-600 text-center max-w-xs mb-4">
+                این کیوارکد را برای ورود فرزند خود اسکن کنید
+              </p>
+              
+              {/* QR Code URL Display */}
+              <div className="w-full max-w-md space-y-3 mt-auto">
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 mb-2 text-right">آدرس کیوارکد:</p>
+                  <button
+                    onClick={handleCopy}
+                    className="w-full text-left"
+                  >
+                    <p className="text-xs text-blue-600 hover:text-blue-700 break-all font-mono underline cursor-pointer transition-colors" dir="ltr">
+                      {qrCodeValue}
+                    </p>
+                  </button>
+                </div>
+                
+                {/* Copy Button */}
+                <button
+                  onClick={handleCopy}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
+                    copied
+                      ? 'bg-green-100 text-green-700 border border-green-300'
+                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
+                >
+                  <ClipboardDocumentIcon className="w-5 h-5" />
+                  {copied ? 'کپی شد!' : 'کپی آدرس'}
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-gray-600 text-center max-w-xs">
-              این کیوارکد را برای ورود فرزند خود اسکن کنید
-            </p>
-      
-          </div>
-        )}
+          );
+        })()}
       </Modal>
     </div>
   );
