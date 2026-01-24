@@ -113,7 +113,7 @@ function RequestsModal({ isOpen, onClose, child, requests }: RequestsModalProps)
           )}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
