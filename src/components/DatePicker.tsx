@@ -170,13 +170,13 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
       {/* Modal Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-end transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center transition-opacity duration-300"
           onClick={handleCancel}
         >
-          {/* Modal Content */}
+          {/* Modal Content - constrained to mobile width */}
           <div
             ref={modalRef}
-            className="w-full bg-white rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out"
+            className="w-full max-w-[430px] bg-white rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out"
             onClick={(e) => e.stopPropagation()}
             style={{
               animation: 'slideUp 0.3s ease-out'
@@ -283,7 +283,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
                 <button
                   type="button"
                   onClick={handleConfirm}
-                  className="w-full px-4 py-3 rounded-xl bg-black hover:bg-gray-800 text-white font-semibold shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
+                  className="w-full px-4 py-3 rounded-xl bg-indigo-700 hover:bg-gray-800 text-white font-semibold shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
                 >
                   تایید
                 </button>

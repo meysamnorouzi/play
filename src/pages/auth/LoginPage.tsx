@@ -1,20 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/auth/AuthLayout';
 import { useAuth } from '../../context/AuthContext';
-import { requestOTP, login } from '../../services/authService';
+// Commented out API imports - using local auth instead
+// import { requestOTP, login } from '../../services/authService';
+
+// Local auth config
+const LOCAL_VALID_OTP = '111111';
 
 const LoginPage = () => {
   const { handleLogin } = useAuth();
   const navigate = useNavigate();
-  
-  // Check if user has seen onboarding
-  useEffect(() => {
-    const onboardingCompleted = localStorage.getItem('onboardingCompleted');
-    if (!onboardingCompleted) {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [navigate]);
   
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
@@ -33,6 +29,14 @@ const LoginPage = () => {
     }
     
     setLoading(true);
+    
+    // Local auth - no API call, just simulate delay and move to OTP step
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setOtpSent(true);
+    setStep('otp');
+    setLoading(false);
+    
+    /* Commented out API call
     try {
       await requestOTP(phone);
       setOtpSent(true);
@@ -42,6 +46,7 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
+    */
   };
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
@@ -54,6 +59,38 @@ const LoginPage = () => {
     }
     
     setLoading(true);
+    
+    // Local auth - validate OTP locally
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (otp === LOCAL_VALID_OTP) {
+      // Create mock response for local login
+      const mockResponse = {
+        data: {
+          access_token: 'local_mock_token_' + Date.now(),
+          expires_in: 3600,
+          issued_at: new Date().toISOString(),
+          refresh_expires_in: 86400,
+          refresh_token: 'local_mock_refresh_' + Date.now(),
+          token_type: 'Bearer',
+        },
+        user: {
+          id: 'local_user_' + phone,
+          phone: phone,
+          firstName: 'کاربر',
+          lastName: 'محلی',
+        },
+      };
+      
+      await handleLogin(mockResponse);
+      navigate('/');
+    } else {
+      setError('کد تایید نامعتبر است (کد صحیح: 111111)');
+    }
+    
+    setLoading(false);
+    
+    /* Commented out API call
     try {
       const response = await login({
         loginType: 'MOBILE_OTP',
@@ -88,11 +125,20 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
+    */
   };
   
   const handleResendOTP = async () => {
     setError('');
     setLoading(true);
+    
+    // Local auth - no API call, just simulate delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setOtpSent(true);
+    setOtp('');
+    setLoading(false);
+    
+    /* Commented out API call
     try {
       await requestOTP(phone);
       setOtpSent(true);
@@ -102,6 +148,7 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
+    */
   };
 
   return (
@@ -138,7 +185,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
+            className="w-full bg-indigo-700 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
           >
             {loading ? 'در حال ارسال...' : 'ادامه'}
           </button>
@@ -178,7 +225,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
+            className="w-full bg-indigo-700 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
           >
             {loading ? 'در حال بررسی...' : 'تایید و ادامه'}
           </button>

@@ -511,11 +511,11 @@ function Home() {
     : children
 
   return (
-    <div className="min-h-screen bg-black" dir="rtl">
+    <div className="min-h-screen bg-indigo-700" dir="rtl">
       {/* Home Header */}
       <HomeHeader />
       
-      <div className="bg-white min-h-screen px-4 py-6 max-w-4xl mx-auto rounded-t-3xl">
+      <div className="bg-white min-h-screen px-4 py-6 rounded-t-3xl">
         {children.length > 0 ? (
           <div className="space-y-4">
             {/* Tabs for multiple children */}
@@ -532,7 +532,7 @@ function Home() {
                       children.length === 2 ? 'flex-1' : 'shrink-0'
                     } ${
                       activeChildId === child.id
-                        ? 'bg-black text-white'
+                        ? 'bg-indigo-700 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -607,7 +607,7 @@ function Home() {
                       {/* Task count */}
                       <button
                         onClick={(e) => handleTasksClick(child, e)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-700 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
                       >
                         <AiOutlineFileText className="w-5 h-5" />
                         <span className="text-base">{tasksCount}</span>
@@ -617,7 +617,7 @@ function Home() {
                       {/* Request count */}
                       <button
                         onClick={(e) => handleRequestsClick(child, e)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-700 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
                       >
                         <AiOutlineInbox className="w-5 h-5" />
                         <span className="text-base">{requestsCount}</span>
@@ -713,7 +713,7 @@ function Home() {
                         <button
                           onClick={() => toggleAllowance(child.id)}
                           className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
-                            childAllowance.isActive ? 'bg-black' : 'bg-gray-300'
+                            childAllowance.isActive ? 'bg-indigo-700' : 'bg-gray-300'
                           }`}
                         >
                           <div
@@ -791,7 +791,7 @@ function Home() {
                             transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
                             className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
                           >
-                            <div className="w-10 h-10 bg-black/5 rounded-full flex items-center justify-center text-gray-700 shrink-0">
+                            <div className="w-10 h-10 bg-indigo-700/5 rounded-full flex items-center justify-center text-gray-700 shrink-0">
                               <AiOutlineFileText className="w-5 h-5" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -886,33 +886,13 @@ function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/children')}
-              className="flex items-center gap-2 bg-black text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300"
+              className="flex items-center gap-2 bg-indigo-700 text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
             >
               <PlusCircleIcon className="w-6 h-6" />
               <span>افزودن فرزند</span>
             </motion.button>
 
-            {/* Feature Icons Row */}
-            <div className="mt-12 flex items-center gap-6 opacity-60">
-              <div className="flex flex-col items-center gap-2">
-                <div className="bg-gray-100 rounded-full p-3">
-                  <AiOutlineWallet className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-xs text-gray-600 font-medium">پس‌انداز</span>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="bg-gray-100 rounded-full p-3">
-                  <BsFlag className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-xs text-gray-600 font-medium">اهداف</span>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="bg-gray-100 rounded-full p-3">
-                  <AiOutlineFileText className="w-6 h-6 text-black" />
-                </div>
-                <span className="text-xs text-gray-600 font-medium">تسک‌ها</span>
-              </div>
-            </div>
+    
           </motion.div>
         )}
       </div>

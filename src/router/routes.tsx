@@ -3,7 +3,6 @@ import App from '../App'
 import Home from '../pages/home/Home'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
-import OnboardingPage from '../pages/onboarding/OnboardingPage'
 import TransactionsPage from '../pages/transactions/TransactionsPage'
 import CategoriesPage from '../pages/categories/CategoriesPage'
 import WalletPage from '../pages/wallet/WalletPage'
@@ -14,6 +13,7 @@ import DefineTaskPage from '../pages/children/DefineTaskPage'
 import MessagesPage from '../pages/messages/MessagesPage'
 import ProtectedRoute from './ProtectedRoute'
 import MainLayout from '../components/MainLayout'
+import Transactions from '../pages/transactions/TransactionsPage'
 
 export const router = createBrowserRouter([
   {
@@ -64,13 +64,13 @@ export const router = createBrowserRouter([
                 path: 'messages',
                 element: <MessagesPage />,
               },
+              {
+                path: 'transactions',
+                element: <Transactions />,
+              },
             ],
           },
         ],
-      },
-      {
-        path: 'onboarding',
-        element: <OnboardingPage />,
       },
       {
         path: 'login',

@@ -36,23 +36,23 @@ function Modal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] pointer-events-none">
+        <div className="fixed inset-0 z-[9999] pointer-events-none flex justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm pointer-events-auto"
+            className="fixed inset-0 bg-[#00000029] backdrop-blur-sm pointer-events-auto"
           />
 
-          {/* Modal Content */}
+          {/* Modal Content - constrained to mobile width */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className={`fixed bottom-0 left-0 right-0 ${backgroundColor} rounded-t-3xl shadow-2xl overflow-hidden transition-colors duration-500 flex flex-col pointer-events-auto`}
+            className={`fixed bottom-0 w-full max-w-[430px] ${backgroundColor} rounded-t-3xl shadow-2xl overflow-hidden transition-colors duration-500 flex flex-col pointer-events-auto`}
             style={{ 
               maxHeight,
               height: 'auto',

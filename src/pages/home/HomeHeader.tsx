@@ -67,7 +67,7 @@ function HomeHeader() {
 
   return (
     <>
-      <div className="px-6 h-48 bg-black flex flex-col">
+      <div className="px-6 h-48 bg-indigo-700 flex flex-col">
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}

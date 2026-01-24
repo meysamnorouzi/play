@@ -31,8 +31,8 @@ function BottomNavigation() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pb-6 pt-3" dir="rtl">
-      <div className="flex justify-around items-center max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-gray-200 px-2 pb-6 pt-3 z-50" dir="rtl">
+      <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item.path)
@@ -46,7 +46,7 @@ function BottomNavigation() {
               {active && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute inset-0 bg-gray-900 rounded-full"
+                  className="absolute inset-0 bg-indigo-700 rounded-full"
                   transition={{
                     type: "spring",
                     stiffness: 380,

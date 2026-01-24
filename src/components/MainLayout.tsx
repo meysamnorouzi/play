@@ -5,9 +5,9 @@ import SWUpdateNotification from './SWUpdateNotification'
 
 function MainLayout() {
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative flex flex-col min-h-screen bg-white">
       {/* محتوای اصلی صفحه */}
-      <div className="pb-24">
+      <div className="flex-1 pb-24">
         <Outlet />
       </div>
       

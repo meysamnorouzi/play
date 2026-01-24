@@ -37,7 +37,7 @@ function PWAInstallButton() {
   if (!showButton) return null
 
   return (
-    <div className="fixed bottom-32 left-0 right-0 z-50 px-4 md:px-8 md:left-auto md:right-4 md:bottom-32 md:w-96">
+    <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 px-4">
       <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1">
           <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">

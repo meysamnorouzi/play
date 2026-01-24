@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://typeagain.ir';
+const API_BASE_URL = 'http://37.152.191.213:8030';
 
 // Create axios instance with base configuration
 export const api = axios.create({

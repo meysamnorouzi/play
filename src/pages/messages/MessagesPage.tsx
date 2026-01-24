@@ -1,27 +1,27 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { 
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
   ChatBubbleLeftRightIcon,
   MagnifyingGlassIcon,
   ShoppingBagIcon,
   WalletIcon,
   CheckCircleIcon,
   UserIcon,
-  HeartIcon
-} from '@heroicons/react/24/outline'
+  HeartIcon,
+} from "@heroicons/react/24/outline";
 
 interface Activity {
   id: string;
   childId: string;
   childName: string;
   childAvatar: string;
-  type: 'request' | 'transaction' | 'login' | 'task' | 'thanks' | 'activity';
+  type: "request" | "transaction" | "login" | "task" | "thanks" | "activity";
   title: string;
   message: string;
   timestamp: number;
   isRead: boolean;
   amount?: number;
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: "pending" | "approved" | "rejected";
 }
 
 interface Child {
@@ -33,119 +33,127 @@ interface Child {
 }
 
 function MessagesPage() {
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [children, setChildren] = useState<Child[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [children, setChildren] = useState<Child[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    loadActivities()
-    
+    loadActivities();
+
     // Reload activities when page becomes visible (user navigates back)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        loadActivities()
+        loadActivities();
       }
-    }
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const loadActivities = () => {
     // Load children
-    const storedChildren = localStorage.getItem('childrenList')
-    const parsedChildren: Child[] = storedChildren ? JSON.parse(storedChildren) : []
-    setChildren(parsedChildren)
+    const storedChildren = localStorage.getItem("childrenList");
+    const parsedChildren: Child[] = storedChildren
+      ? JSON.parse(storedChildren)
+      : [];
+    setChildren(parsedChildren);
 
-    const allActivities: Activity[] = []
-    const now = Date.now()
+    const allActivities: Activity[] = [];
+    const now = Date.now();
 
     if (parsedChildren.length > 0) {
       parsedChildren.forEach((child, childIndex) => {
-        const childName = `${child.firstName} ${child.lastName}`
+        const childName = `${child.firstName} ${child.lastName}`;
 
         // Load requests
-        const requestsKey = `childRequests_${child.id}`
-        const storedRequests = localStorage.getItem(requestsKey)
+        const requestsKey = `childRequests_${child.id}`;
+        const storedRequests = localStorage.getItem(requestsKey);
         if (storedRequests) {
-          const requests: any[] = JSON.parse(storedRequests)
+          const requests: any[] = JSON.parse(storedRequests);
           requests.forEach((request, index) => {
             allActivities.push({
               id: `request_${child.id}_${request.id}`,
               childId: child.id,
               childName,
               childAvatar: child.avatar,
-              type: 'request',
+              type: "request",
               title: request.title,
               message: request.description || request.title,
-              timestamp: request.date || now - (childIndex * 2 * 60 * 60 * 1000) - (index * 30 * 60 * 1000),
-              isRead: request.status !== 'pending',
+              timestamp:
+                request.date ||
+                now - childIndex * 2 * 60 * 60 * 1000 - index * 30 * 60 * 1000,
+              isRead: request.status !== "pending",
               status: request.status,
-              amount: request.amount
-            })
-          })
+              amount: request.amount,
+            });
+          });
         } else {
           // Create sample requests
           const sampleRequests = [
             {
-              id: '1',
-              title: 'درخواست خرید بازی',
-              description: 'می‌خوام بازی جدید پلی‌استیشن رو بخرم',
-              type: 'خرید',
-              date: now - (childIndex * 2 * 60 * 60 * 1000) - 30 * 60 * 1000,
-              status: 'pending' as const,
-              amount: 1599000
+              id: "1",
+              title: "درخواست خرید بازی",
+              description: "می‌خوام بازی جدید پلی‌استیشن رو بخرم",
+              type: "خرید",
+              date: now - childIndex * 2 * 60 * 60 * 1000 - 30 * 60 * 1000,
+              status: "pending" as const,
+              amount: 1599000,
             },
             {
-              id: '2',
-              title: 'درخواست افزایش موجودی',
-              description: 'می‌خوام موجودی کیف پولم رو افزایش بدی',
-              type: 'مالی',
-              date: now - (childIndex * 2 * 60 * 60 * 1000) - 2 * 60 * 60 * 1000,
-              status: 'pending' as const,
-              amount: 500000
-            }
-          ]
-          localStorage.setItem(requestsKey, JSON.stringify(sampleRequests))
+              id: "2",
+              title: "درخواست افزایش موجودی",
+              description: "می‌خوام موجودی کیف پولم رو افزایش بدی",
+              type: "مالی",
+              date: now - childIndex * 2 * 60 * 60 * 1000 - 2 * 60 * 60 * 1000,
+              status: "pending" as const,
+              amount: 500000,
+            },
+          ];
+          localStorage.setItem(requestsKey, JSON.stringify(sampleRequests));
           sampleRequests.forEach((request) => {
             allActivities.push({
               id: `request_${child.id}_${request.id}`,
               childId: child.id,
               childName,
               childAvatar: child.avatar,
-              type: 'request',
+              type: "request",
               title: request.title,
               message: request.description,
               timestamp: request.date,
               isRead: false,
               status: request.status,
-              amount: request.amount
-            })
-          })
+              amount: request.amount,
+            });
+          });
         }
 
         // Load recent activities
-        const activitiesKey = `childRecentActivities_${child.id}`
-        const storedActivities = localStorage.getItem(activitiesKey)
+        const activitiesKey = `childRecentActivities_${child.id}`;
+        const storedActivities = localStorage.getItem(activitiesKey);
         if (storedActivities) {
-          const recentActivities: any[] = JSON.parse(storedActivities)
+          const recentActivities: any[] = JSON.parse(storedActivities);
           recentActivities.slice(0, 3).forEach((activity, index) => {
             allActivities.push({
               id: `activity_${child.id}_${activity.id}`,
               childId: child.id,
               childName,
               childAvatar: child.avatar,
-              type: 'transaction',
+              type: "transaction",
               title: activity.title,
-              message: `${activity.title} - ${activity.type === 'expense' ? 'هزینه' : 'درآمد'}`,
-              timestamp: activity.date || now - (childIndex * 3 * 60 * 60 * 1000) - (index * 60 * 60 * 1000),
+              message: `${activity.title} - ${
+                activity.type === "expense" ? "هزینه" : "درآمد"
+              }`,
+              timestamp:
+                activity.date ||
+                now - childIndex * 3 * 60 * 60 * 1000 - index * 60 * 60 * 1000,
               isRead: true,
-              amount: activity.amount
-            })
-          })
+              amount: activity.amount,
+            });
+          });
         }
 
         // Add sample thanks message
@@ -154,12 +162,12 @@ function MessagesPage() {
           childId: child.id,
           childName,
           childAvatar: child.avatar,
-          type: 'thanks',
-          title: 'تشکر',
-          message: 'ممنون از واریز حقوق هفتگی 😊',
-          timestamp: now - (childIndex * 4 * 60 * 60 * 1000),
-          isRead: childIndex === 0 ? false : true
-        })
+          type: "thanks",
+          title: "تشکر",
+          message: "ممنون از واریز حقوق هفتگی 😊",
+          timestamp: now - childIndex * 4 * 60 * 60 * 1000,
+          isRead: childIndex === 0 ? false : true,
+        });
 
         // Add sample task completion
         allActivities.push({
@@ -167,12 +175,12 @@ function MessagesPage() {
           childId: child.id,
           childName,
           childAvatar: child.avatar,
-          type: 'task',
-          title: 'تسک انجام شد',
+          type: "task",
+          title: "تسک انجام شد",
           message: 'تسک "خرید کتاب درسی" رو انجام دادم!',
-          timestamp: now - (childIndex * 5 * 60 * 60 * 1000),
-          isRead: true
-        })
+          timestamp: now - childIndex * 5 * 60 * 60 * 1000,
+          isRead: true,
+        });
 
         // Add sample login activity
         allActivities.push({
@@ -180,102 +188,118 @@ function MessagesPage() {
           childId: child.id,
           childName,
           childAvatar: child.avatar,
-          type: 'login',
-          title: 'ورود به اپلیکیشن',
-          message: 'به اپلیکیشن وارد شد',
-          timestamp: now - (childIndex * 6 * 60 * 60 * 1000),
-          isRead: true
-        })
-      })
+          type: "login",
+          title: "ورود به اپلیکیشن",
+          message: "به اپلیکیشن وارد شد",
+          timestamp: now - childIndex * 6 * 60 * 60 * 1000,
+          isRead: true,
+        });
+      });
     }
 
     // Sort by timestamp (newest first)
-    const sortedActivities = allActivities.sort((a, b) => b.timestamp - a.timestamp)
-    setActivities(sortedActivities)
-  }
+    const sortedActivities = allActivities.sort(
+      (a, b) => b.timestamp - a.timestamp
+    );
+    setActivities(sortedActivities);
+  };
 
   const formatTime = (timestamp: number): string => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const minutes = Math.floor(diff / (1000 * 60))
-    
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+
     if (minutes < 1) {
-      return 'همین الان'
+      return "همین الان";
     }
     if (minutes < 60) {
-      return `${minutes} دقیقه پیش`
+      return `${minutes} دقیقه پیش`;
     }
     if (hours < 24) {
-      return `${hours} ساعت پیش`
+      return `${hours} ساعت پیش`;
     }
-    const days = Math.floor(hours / 24)
-    if (days === 1) return 'دیروز'
-    if (days < 7) return `${days} روز پیش`
-    return date.toLocaleDateString('fa-IR', { month: 'long', day: 'numeric' })
-  }
+    const days = Math.floor(hours / 24);
+    if (days === 1) return "دیروز";
+    if (days < 7) return `${days} روز پیش`;
+    return date.toLocaleDateString("fa-IR", { month: "long", day: "numeric" });
+  };
 
   const formatBalance = (balance: number): string => {
-    return new Intl.NumberFormat('fa-IR').format(balance)
-  }
+    return new Intl.NumberFormat("fa-IR").format(balance);
+  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'request':
-        return <ShoppingBagIcon className="w-5 h-5" />
-      case 'transaction':
-        return <WalletIcon className="w-5 h-5" />
-      case 'task':
-        return <CheckCircleIcon className="w-5 h-5" />
-      case 'thanks':
-        return <HeartIcon className="w-5 h-5" />
-      case 'login':
-        return <UserIcon className="w-5 h-5" />
+      case "request":
+        return <ShoppingBagIcon className="w-5 h-5" />;
+      case "transaction":
+        return <WalletIcon className="w-5 h-5" />;
+      case "task":
+        return <CheckCircleIcon className="w-5 h-5" />;
+      case "thanks":
+        return <HeartIcon className="w-5 h-5" />;
+      case "login":
+        return <UserIcon className="w-5 h-5" />;
       default:
-        return <ChatBubbleLeftRightIcon className="w-5 h-5" />
+        return <ChatBubbleLeftRightIcon className="w-5 h-5" />;
     }
-  }
+  };
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'request':
-        return 'bg-blue-50 text-blue-600'
-      case 'transaction':
-        return 'bg-green-50 text-green-600'
-      case 'task':
-        return 'bg-purple-50 text-purple-600'
-      case 'thanks':
-        return 'bg-pink-50 text-pink-600'
-      case 'login':
-        return 'bg-gray-50 text-gray-600'
+      case "request":
+        return "bg-blue-50 text-blue-600";
+      case "transaction":
+        return "bg-green-50 text-green-600";
+      case "task":
+        return "bg-purple-50 text-purple-600";
+      case "thanks":
+        return "bg-pink-50 text-pink-600";
+      case "login":
+        return "bg-gray-50 text-gray-600";
       default:
-        return 'bg-gray-50 text-gray-600'
+        return "bg-gray-50 text-gray-600";
     }
-  }
+  };
 
   const getStatusBadge = (status?: string) => {
-    if (!status) return null
-    
+    if (!status) return null;
+
     switch (status) {
-      case 'pending':
-        return <span className="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">در انتظار</span>
-      case 'approved':
-        return <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">تأیید شده</span>
-      case 'rejected':
-        return <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded-full font-medium">رد شده</span>
+      case "pending":
+        return (
+          <span className="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium">
+            در انتظار
+          </span>
+        );
+      case "approved":
+        return (
+          <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium">
+            تأیید شده
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className="text-xs bg-red-50 text-red-700 px-2 py-0.5 rounded-full font-medium">
+            رد شده
+          </span>
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const filteredActivities = activities.filter(activity =>
-    activity.childName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    activity.message.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredActivities = activities.filter(
+    (activity) =>
+      activity.childName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      activity.message.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const unreadCount = activities.filter(a => !a.isRead).length
+  // Unread count for future use
+  // const unreadCount = activities.filter((a) => !a.isRead).length;
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -287,8 +311,8 @@ function MessagesPage() {
             transition={{ duration: 0.5 }}
             className="text-center py-16 px-4"
           >
-            <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-              <ChatBubbleLeftRightIcon className="w-10 h-10 text-gray-400" />
+            <div className="bg-gray-100 rounded-full w-24 h-24 border border-black flex items-center justify-center mx-auto mb-4">
+              <ChatBubbleLeftRightIcon className="w-10 h-10 text-black" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
               هنوز فرزندی اضافه نشده
@@ -299,24 +323,42 @@ function MessagesPage() {
           </motion.div>
         </div>
       ) : (
-        <div className="bg-white min-h-screen px-4 py-6 max-w-4xl mx-auto">
+        <div className="bg-white min-h-screen px-4 py-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-6"
+            className="mb-3"
           >
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">درخواست‌ها و فعالیت‌ها</h1>
-              {unreadCount > 0 && (
-                <span className="bg-black text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  {unreadCount} خوانده نشده
-                </span>
-              )}
+              <h1 className="text-2xl font-bold text-gray-900">
+                درخواست‌ها و فعالیت‌ها
+              </h1>
             </div>
-            <p className="text-gray-600 text-sm">درخواست‌ها و فعالیت‌های فرزندان شما</p>
+            <p className="text-gray-600 text-sm">
+              درخواست‌ها و فعالیت‌های فرزندان شما
+            </p>
           </motion.div>
+
+          <div className="grid grid-cols-4 gap-3">
+            <div className=" h-20 border border-indigo-700 mb-3 flex items-center justify-center flex-col rounded-lg ">
+              <HeartIcon className="w-6 h-6 text-indigo-700" />
+              <p className="text-xs font-semibold mt-1 text-indigo-700">همه</p>
+            </div>
+            <div className=" h-20 border border-gray-200 mb-3 flex items-center justify-center flex-col rounded-lg ">
+              <CheckCircleIcon className="w-6 h-6 text-black" />
+              <p className="text-xs font-semibold mt-1 text-gray-900">تایید شده</p>
+            </div>
+            <div className=" h-20 border border-gray-200 mb-3 flex items-center justify-center flex-col rounded-lg ">
+              <WalletIcon className="w-6 h-6 text-black" />
+              <p className="text-xs font-semibold mt-1 text-gray-900">کیف پول</p>
+            </div>
+            <div className=" h-20 border border-gray-200 mb-3 flex items-center justify-center flex-col rounded-lg ">
+              <ShoppingBagIcon className="w-6 h-6 text-black" />
+              <p className="text-xs font-semibold mt-1 text-gray-900">فروشگاه</p>
+            </div>
+          </div>
 
           {/* Search Bar */}
           <motion.div
@@ -339,66 +381,74 @@ function MessagesPage() {
 
           {/* Activities List */}
           {filteredActivities.length > 0 ? (
-          <div className="space-y-3">
-            {filteredActivities.map((activity, index) => (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
-                className={`bg-white rounded-xl p-4 border border-gray-200 hover:bg-gray-50 transition-colors ${
-                  !activity.isRead ? 'border-l-4 border-l-black' : ''
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div className="relative shrink-0">
-                    <img
-                      src={activity.childAvatar}
-                      alt={activity.childName}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-                    />
-                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${getActivityColor(activity.type)}`}>
-                      {getActivityIcon(activity.type)}
+            <div className="space-y-3">
+              {filteredActivities.map((activity, index) => (
+                <motion.div
+                  key={activity.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
+                  className={`bg-white rounded-xl p-4 border border-gray-200 hover:bg-gray-50 transition-colors ${
+                    !activity.isRead ? "border-l-4 border-l-black" : ""
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="relative shrink-0">
+                      <img
+                        src={activity.childAvatar}
+                        alt={activity.childName}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                      />
+                      <div
+                        className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${getActivityColor(
+                          activity.type
+                        )}`}
+                      >
+                        {getActivityIcon(activity.type)}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-1">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-bold text-gray-900">
-                            {activity.childName}
-                          </h3>
-                          {!activity.isRead && (
-                            <span className="w-2 h-2 bg-black rounded-full"></span>
-                          )}
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-1">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-sm font-bold text-gray-900">
+                              {activity.childName}
+                            </h3>
+                            {!activity.isRead && (
+                              <span className="w-2 h-2 bg-indigo-700 rounded-full"></span>
+                            )}
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900 mb-1">
+                            {activity.title}
+                          </p>
                         </div>
-                        <p className="text-sm font-semibold text-gray-900 mb-1">
-                          {activity.title}
-                        </p>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <span className="text-xs text-gray-500">
+                            {formatTime(activity.timestamp)}
+                          </span>
+                          {getStatusBadge(activity.status)}
+                        </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="text-xs text-gray-500">
-                          {formatTime(activity.timestamp)}
-                        </span>
-                        {getStatusBadge(activity.status)}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {activity.message}
-                    </p>
-                    {activity.amount && (
-                      <p className="text-xs text-gray-500">
-                        مبلغ: <span className="font-semibold text-gray-900">{formatBalance(activity.amount)}</span> تومان
+                      <p className="text-sm text-gray-600 mb-2">
+                        {activity.message}
                       </p>
-                    )}
+                      {activity.amount && (
+                        <p className="text-xs text-gray-500">
+                          مبلغ:{" "}
+                          <span className="font-semibold text-gray-900">
+                            {formatBalance(activity.amount)}
+                          </span>{" "}
+                          تومان
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -406,23 +456,23 @@ function MessagesPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-center py-16"
             >
-              <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <ChatBubbleLeftRightIcon className="w-10 h-10 text-gray-400" />
+              <div className="border border-black rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                <ChatBubbleLeftRightIcon className="w-10 h-10 text-black" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {searchQuery ? 'نتیجه‌ای یافت نشد' : 'هنوز فعالیتی وجود ندارد'}
+                {searchQuery ? "نتیجه‌ای یافت نشد" : "هنوز فعالیتی وجود ندارد"}
               </h3>
               <p className="text-gray-500 text-sm">
-                {searchQuery 
-                  ? 'لطفاً کلمه دیگری را جستجو کنید'
-                  : 'درخواست‌ها و فعالیت‌های فرزندان شما اینجا نمایش داده می‌شود'}
+                {searchQuery
+                  ? "لطفاً کلمه دیگری را جستجو کنید"
+                  : "درخواست‌ها و فعالیت‌های فرزندان شما اینجا نمایش داده می‌شود"}
               </p>
             </motion.div>
           )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default MessagesPage
+export default MessagesPage;

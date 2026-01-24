@@ -26,7 +26,7 @@ function SWUpdateNotification() {
 
   if (needRefresh) {
     return (
-      <div className="fixed top-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-96">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-[398px] z-50 px-4">
         <div className="bg-blue-600 text-white rounded-lg shadow-xl p-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-1">
             <div className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center shrink-0">
@@ -64,7 +64,7 @@ function SWUpdateNotification() {
 
   if (showOfflineReady) {
     return (
-      <div className="fixed top-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-96">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-[398px] z-50 px-4">
         <div className="bg-green-600 text-white rounded-lg shadow-xl p-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-1">
             <div className="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center shrink-0">

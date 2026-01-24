@@ -41,16 +41,16 @@ function RequestsModal({ isOpen, onClose, child, requests }: RequestsModalProps)
   if (!child || !isOpen) return null
 
   return (
-    <>
+    <div className="fixed inset-0 z-50 flex justify-center">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/70 z-50"
+        className="fixed inset-0 bg-black/70"
       />
       
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet - constrained to mobile width */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[90vh] flex flex-col shadow-2xl"
+        className="fixed bottom-0 w-full max-w-[430px] bg-white rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar */}

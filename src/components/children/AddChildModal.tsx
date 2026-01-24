@@ -142,7 +142,7 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
                   className="w-full h-full object-cover"
                 />
                 {formData.avatar === avatar && (
-                  <div className="absolute inset-0 bg-gray-900/20 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-indigo-700/20 flex items-center justify-center">
                     <CheckIcon className="w-8 h-8 text-white drop-shadow-lg" />
                   </div>
                 )}
@@ -237,7 +237,7 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
         <div className="flex gap-3 pt-4">
           <button
             onClick={handleSubmit}
-            className="flex-1 bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-indigo-700 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
           >
             <CheckIcon className="w-5 h-5" />
             افزودن فرزند

@@ -198,7 +198,7 @@ const RegisterPage = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-gray-300 transition-all active:scale-[0.98] mt-4"
+          className="w-full bg-indigo-700 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-gray-300 transition-all active:scale-[0.98] mt-4"
         >
           {loading ? 'در حال ثبت نام...' : 'ثبت نام و ورود'}
         </button>

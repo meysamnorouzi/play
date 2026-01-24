@@ -50,14 +50,17 @@ function ChildrenOnboarding({ slides, onComplete }: ChildrenOnboardingProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex flex-col justify-end overflow-hidden transition-all duration-500"
-      style={{
-        backgroundImage: `url(${slides[currentSlide].image})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="fixed inset-0 z-50 flex justify-center"
     >
+      <div 
+        className="w-full max-w-[430px] h-full flex flex-col justify-end overflow-hidden transition-all duration-500"
+        style={{
+          backgroundImage: `url(${slides[currentSlide].image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
       {/* Bottom white card */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
@@ -107,7 +110,7 @@ function ChildrenOnboarding({ slides, onComplete }: ChildrenOnboardingProps) {
               onClick={() => handleDotClick(index)}
               className={`h-2 rounded-full transition-all ${
                 index === currentSlide
-                  ? 'w-8 bg-black'
+                  ? 'w-8 bg-indigo-700'
                   : 'w-2 bg-gray-300'
               }`}
               aria-label={`اسلاید ${index + 1}`}
@@ -121,13 +124,14 @@ function ChildrenOnboarding({ slides, onComplete }: ChildrenOnboardingProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
           onClick={handleNext}
-          className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-xl text-lg transition-colors"
+          className="w-full bg-indigo-700 hover:bg-gray-800 text-white font-semibold py-4 rounded-xl text-lg transition-colors"
           whileTap={{ scale: 0.98 }}
           whileHover={{ scale: 1.02 }}
         >
           {currentSlide === slides.length - 1 ? 'شروع کنید' : 'بعدی'}
         </motion.button>
       </motion.div>
+      </div>
     </div>
   );
 }

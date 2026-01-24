@@ -44,21 +44,21 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
   if (!child || !isOpen) return null
 
   return (
-    <>
+    <div className="fixed inset-0 z-50 flex justify-center">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/70 z-50"
+        className="fixed inset-0 bg-[#00000029] z-50"
       />
       
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet - constrained to mobile width */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[90vh] flex flex-col shadow-2xl"
+        className="fixed bottom-0 w-full max-w-[430px] bg-white rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-16 h-1.5 bg-black/20 rounded-full"></div>
+          <div className="w-16 h-1.5 bg-indigo-700/20 rounded-full"></div>
         </div>
 
         {/* Header */}
@@ -102,7 +102,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                       </div>
                       <p className="text-sm text-gray-600 mb-3 leading-relaxed">{task.description}</p>
                       <div className="flex items-center gap-3 text-xs flex-wrap">
-                        <span className="bg-black text-white px-3 py-1 rounded-full font-medium">
+                        <span className="bg-indigo-700 text-white px-3 py-1 rounded-full font-medium">
                           {task.category}
                         </span>
                         <span className="text-gray-500">{formatDate(task.date)}</span>
@@ -117,7 +117,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                         ? 'bg-green-50 text-green-700 border border-green-200' 
                         : task.status === 'in-progress'
                         ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : 'bg-black text-white'
+                        : 'bg-indigo-700 text-white'
                     }`}>
                       {task.status === 'completed' ? 'انجام شده' : 
                        task.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}
@@ -136,7 +136,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
           )}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

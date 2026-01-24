@@ -64,32 +64,22 @@ function ChildrenPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const calculateAge = (birthDate: string): number => {
-    if (!birthDate) return 0;
-    
-    // Parse Persian date (format: YYYY/MM/DD)
-    const parts = birthDate.split('/').map(Number);
-    if (parts.length !== 3) return 0;
-    
-    const [persianYear, persianMonth, persianDay] = parts;
-    
-    // Convert Persian date to Gregorian date
-    const gregorianYear = persianYear - 621;
-    
-    // Create a date object (approximate conversion)
-    const birth = new Date(gregorianYear, persianMonth - 1, persianDay);
-    const today = new Date();
-    
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    
-    // Cap age at 18
-    return Math.min(Math.max(age, 0), 18);
-  };
+  // Calculate age from Persian birth date - kept for future use
+  // const calculateAge = (birthDate: string): number => {
+  //   if (!birthDate) return 0;
+  //   const parts = birthDate.split('/').map(Number);
+  //   if (parts.length !== 3) return 0;
+  //   const [persianYear, persianMonth, persianDay] = parts;
+  //   const gregorianYear = persianYear - 621;
+  //   const birth = new Date(gregorianYear, persianMonth - 1, persianDay);
+  //   const today = new Date();
+  //   let age = today.getFullYear() - birth.getFullYear();
+  //   const monthDiff = today.getMonth() - birth.getMonth();
+  //   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+  //     age--;
+  //   }
+  //   return Math.min(Math.max(age, 0), 18);
+  // };
 
   useEffect(() => {
     // Check if user has seen this page before
@@ -196,7 +186,7 @@ function ChildrenPage() {
                 </div>
                 <motion.button
                   onClick={handleAddChild}
-                  className="w-full max-w-sm bg-black hover:bg-gray-800 text-white font-semibold py-3.5 rounded-xl text-base transition-colors shadow-sm"
+                  className="w-full max-w-sm bg-indigo-700 hover:bg-gray-800 text-white font-semibold py-3.5 rounded-xl text-base transition-colors shadow-sm"
                   whileTap={{ scale: 0.98 }}
                 >
                   افزودن فرزند
@@ -204,12 +194,12 @@ function ChildrenPage() {
               </div>
             ) : (
               // Children list
-              <div className="flex-1 bg-gray-50 px-4 py-6 pb-24 max-w-4xl mx-auto w-full">
+              <div className="flex-1 bg-gray-50 px-4 py-6 pb-24 w-full">
                 <div className="flex justify-between items-center mb-6">
                   <h1 className="text-2xl font-bold text-gray-900">فرزندان</h1>
                   <motion.button
                     onClick={handleAddChild}
-                    className="bg-black hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors shadow-sm"
+                    className="bg-indigo-700 hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors shadow-sm"
                     whileTap={{ scale: 0.98 }}
                   >
                     افزودن فرزند
@@ -263,11 +253,7 @@ function ChildrenPage() {
                               {getTimeStatus(child)}
                             </p>
                             <div className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
-                              {child.birthDate && (
-                                <span className="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
-                                  {calculateAge(child.birthDate)} سال
-                                </span>
-                              )}
+                    
                               <span>کد ملی: {child.nationalId}</span>
                             </div>
                           </div>
@@ -279,7 +265,7 @@ function ChildrenPage() {
                                 e.stopPropagation()
                                 navigate(`/children/${child.id}`)
                               }}
-                              className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
+                              className="bg-indigo-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
                               whileTap={{ scale: 0.95 }}
                             >
                               جزئیات
@@ -387,7 +373,7 @@ function ChildrenPage() {
                   className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
                     copied
                       ? 'bg-green-100 text-green-700 border border-green-300'
-                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                      : 'bg-indigo-700 text-white hover:bg-gray-800'
                   }`}
                 >
                   <ClipboardDocumentIcon className="w-5 h-5" />
