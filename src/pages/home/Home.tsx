@@ -444,7 +444,7 @@ function Home() {
 
     const requestsKey = `childRequests_${selectedChild.id}`
     const storedRequests = localStorage.getItem(requestsKey)
-    
+
     if (storedRequests) {
       const allRequests: Request[] = JSON.parse(storedRequests)
       const updatedRequests = allRequests.map(req =>
@@ -461,7 +461,7 @@ function Home() {
 
     const requestsKey = `childRequests_${selectedChild.id}`
     const storedRequests = localStorage.getItem(requestsKey)
-    
+
     if (storedRequests) {
       const allRequests: Request[] = JSON.parse(storedRequests)
       const updatedRequests = allRequests.map(req =>
@@ -554,8 +554,8 @@ function Home() {
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                     onClick={() => setActiveChildId(child.id)}
                     className={`relative bg-gradient-to-br from-[#359C67] via-[#359C67] to-[#2E7D5A] rounded-3xl p-5 shadow-2xl overflow-hidden transition-all cursor-pointer flex-shrink-0 ${activeChildId === child.id
-                        ? 'ring-4 ring-[#81C784] ring-offset-2'
-                        : 'opacity-90'
+                      ? 'ring-4 ring-[#81C784] ring-offset-2'
+                      : 'opacity-90'
                       }`}
                     style={{
                       width: children.length === 1 ? '100%' : '90%',
@@ -588,9 +588,6 @@ function Home() {
                               <p className="text-white/70 text-xs">کیف پول</p>
                             </div>
                           </div>
-                        </div>
-                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-                          <WalletIcon className="w-6 h-6 text-white/90" />
                         </div>
                       </div>
 
@@ -864,8 +861,8 @@ function Home() {
             className="flex flex-col items-center justify-center pt-10 px-4"
           >
             {/* Main Icon Container with Gradient Background */}
-            <div className='w-full mb-4'>
-              <img src="/icon/Parent_add_child.gif" alt="" className='w-full' />
+            <div className='w-full mb-4 flex items-center justify-center'>
+              <img src="/icon/Parent_add_child.gif" alt="" className='w-[70%]' />
             </div>
 
             {/* Text Content */}

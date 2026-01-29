@@ -17,7 +17,7 @@ const LoginPage = () => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const [otpSent, setOtpSent] = useState(false);
+  const [, setOtpSent] = useState(false);
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,11 +197,6 @@ const LoginPage = () => {
               {error}
             </div>
           )}
-          {otpSent && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
-              کد تایید ارسال شد
-            </div>
-          )}
           <div className="space-y-2">
             <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
               کد تایید
@@ -229,12 +224,12 @@ const LoginPage = () => {
           >
             {loading ? 'در حال بررسی...' : 'تایید و ادامه'}
           </button>
-          <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center w-full gap-2">
             <button
               type="button"
               onClick={handleResendOTP}
               disabled={loading}
-              className="w-full text-sm text-gray-500 hover:text-gray-700 disabled:text-gray-400"
+              className="w-fit text-sm underline text-gray-500 hover:text-gray-700 disabled:text-gray-400"
             >
               ارسال مجدد کد تایید
             </button>
@@ -247,7 +242,7 @@ const LoginPage = () => {
                 setOtpSent(false);
               }}
               disabled={loading}
-              className="w-full text-sm text-gray-500 hover:text-gray-700 disabled:text-gray-400"
+              className="w-fit text-sm underline text-gray-500 hover:text-gray-700 disabled:text-gray-400"
             >
               ویرایش شماره موبایل
             </button>

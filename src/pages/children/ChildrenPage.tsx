@@ -141,8 +141,8 @@ function ChildrenPage() {
           className="flex flex-col items-center justify-center py-16 px-4"
         >
           {/* Main Icon Container with Gradient Background */}
-          <div className='w-full mb-4'>
-            <img src="/icon/Parent_add_child.gif" alt="" className='w-full' />
+          <div className='w-full mb-4 flex items-center justify-center'>
+            <img src="/icon/Parent_add_child.gif" alt="" className='w-[70%]' />
           </div>
 
           {/* Text Content */}

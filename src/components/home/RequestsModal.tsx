@@ -166,7 +166,7 @@ function RequestsModal({ isOpen, onClose, child, requests, onApprove, onReject }
                             d="M6 18L18 6M6 6l12 12"
                           />
                         </svg>
-                        رد درخواست
+                        رد 
                       </button>
                       <button
                         onClick={() => handleApprove(request.id)}
@@ -185,7 +185,7 @@ function RequestsModal({ isOpen, onClose, child, requests, onApprove, onReject }
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        تایید درخواست
+                        تایید 
                       </button>
                     </div>
                   )}
