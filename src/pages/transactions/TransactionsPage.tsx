@@ -14,6 +14,7 @@ import {
   AiOutlineRest,
   AiOutlineArrowDown,
 } from "react-icons/ai";
+import { toPersianNumber } from "../../utils/numberUtils";
 
 interface Child {
   id: string;
@@ -177,7 +178,7 @@ function TransactionsPage() {
             },
             {
               id: `activity_${child.id}_5`,
-              title: "پاداش انجام تسک",
+              title: "پاداش انجام ماموریت",
               amount: 500000,
               type: "income",
               date: now - 7 * 24 * 60 * 60 * 1000, // 7 days ago
@@ -291,13 +292,13 @@ function TransactionsPage() {
     if (hours < 24) {
       if (hours === 0) {
         const minutes = Math.floor(diff / (1000 * 60));
-        return minutes < 1 ? "همین الان" : `${minutes} دقیقه پیش`;
+        return minutes < 1 ? "همین الان" : `${toPersianNumber(minutes)} دقیقه پیش`;
       }
-      return `${hours} ساعت پیش`;
+      return `${toPersianNumber(hours)} ساعت پیش`;
     }
     const days = Math.floor(hours / 24);
     if (days === 1) return "دیروز";
-    if (days < 7) return `${days} روز پیش`;
+    if (days < 7) return `${toPersianNumber(days)} روز پیش`;
     return date.toLocaleDateString("fa-IR", { month: "long", day: "numeric" });
   };
 
@@ -336,9 +337,9 @@ function TransactionsPage() {
       </motion.div>
 
       <div className="grid grid-cols-4 gap-3">
-        <div className=" h-20 border border-indigo-700 mb-3 flex items-center justify-center flex-col rounded-lg ">
-          <HeartIcon className="w-6 h-6 text-indigo-700" />
-          <p className="text-xs font-semibold mt-1 text-indigo-700">همه</p>
+        <div className=" h-20 border border-[#359C67] mb-3 flex items-center justify-center flex-col rounded-lg ">
+          <HeartIcon className="w-6 h-6 text-[#359C67]" />
+          <p className="text-xs font-semibold mt-1 text-[#359C67]">همه</p>
         </div>
         <div className=" h-20 border border-gray-200 mb-3 flex items-center justify-center flex-col rounded-lg ">
           <CheckCircleIcon className="w-6 h-6 text-black" />

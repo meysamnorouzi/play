@@ -204,7 +204,7 @@ function DefineTaskPage() {
                   </motion.div>
                 )}
               </div>
-              <p className="text-sm text-white/90 drop-shadow-md">تعریف تسک</p>
+              <p className="text-sm text-white/90 drop-shadow-md">تعریف ماموریت</p>
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@ function DefineTaskPage() {
         {/* Digit Header with Guide Button */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex justify-between w-full items-center gap-3">
-            <div className="flex items-center gap-2 bg-indigo-700 px-4 py-2.5 rounded-xl">
+            <div className="flex items-center gap-2 bg-[#359C67] px-4 py-2.5 rounded-xl">
               <CurrencyDollarIcon className="w-6 h-6 text-white" />
               <span className="font-bold text-white text-lg">دیجیت</span>
             </div>
@@ -246,18 +246,18 @@ function DefineTaskPage() {
 
             <div className="text-center space-y-3 mb-8">
               <h3 className="text-2xl font-bold text-gray-900">
-                هنوز تسک دیجیتی وجود ندارد
+                هنوز ماموریت دیجیتی وجود ندارد
               </h3>
               <p className="text-gray-500 text-sm max-w-sm leading-relaxed">
-                برای شروع، اولین تسک با دیجیت را برای فرزند خود تعریف کنید
+                برای شروع، اولین ماموریت با دیجیت را برای فرزند خود تعریف کنید
               </p>
 
               <motion.button
                onClick={handleAddTask}
-                className="bg-indigo-700 hover:bg-gray-800 text-white font-semibold px-8 py-4 rounded-xl text-sm transition-colors shadow-sm"
+                className="bg-[#359C67] hover:bg-gray-800 text-white font-semibold px-8 py-4 rounded-xl text-sm transition-colors shadow-sm"
                 whileTap={{ scale: 0.98 }}
               >
-                افزودن تسک جدید
+                افزودن ماموریت جدید
               </motion.button>
             </div>
           </motion.div>
@@ -310,8 +310,8 @@ function DefineTaskPage() {
           setShowAddModal(false);
           setNewTask({ title: "", reward: "" });
         }}
-        title="افزودن تسک دیجیتی"
-        maxHeight="70vh"
+        title="تعریف ماموریت"
+        maxHeight="90vh"
       >
         <div className="space-y-6">
           <div className="space-y-2">
@@ -319,7 +319,7 @@ function DefineTaskPage() {
               htmlFor="taskTitle"
               className="block text-sm font-semibold text-gray-700"
             >
-              عنوان تسک
+              عنوان ماموریت
             </label>
             <input
               type="text"
@@ -339,7 +339,7 @@ function DefineTaskPage() {
               htmlFor="taskReward"
               className="block text-sm font-semibold text-gray-700"
             >
-              مقدار دیجیت
+              تشویقی
             </label>
             <input
               type="number"
@@ -362,7 +362,7 @@ function DefineTaskPage() {
             className="w-full bg-gradient-to-br from-gray-800 to-gray-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <CheckIcon className="w-6 h-6" />
-            <span>ذخیره تسک</span>
+            <span>ذخیره ماموریت</span>
           </motion.button>
         </div>
       </Modal>
@@ -372,23 +372,23 @@ function DefineTaskPage() {
         isOpen={showDigitGuide}
         onClose={() => setShowDigitGuide(false)}
         title="دیجیت چیست؟"
-        maxHeight="70vh"
+        maxHeight="90vh"
       >
         <div className="space-y-6">
           <div className="flex items-center justify-center mb-4">
-            <div className="rounded-full w-20 h-20 flex items-center justify-center border border-indigo-700">
-              <CurrencyDollarIcon className="w-10 h-10 text-indigo-700" />
+            <div className="rounded-full w-20 h-20 flex items-center justify-center border border-[#359C67]">
+              <CurrencyDollarIcon className="w-10 h-10 text-[#359C67]" />
             </div>
           </div>
 
           <div className="space-y-4 text-gray-700 leading-relaxed">
             <p className="text-base">
               <strong className="text-gray-900">دیجیت</strong> یک واحد پاداش
-              دیجیتالی است که فرزند شما با انجام تسک‌ها و فعالیت‌های مختلف
+              دیجیتالی است که فرزند شما با انجام ماموریت‌ها و فعالیت‌های مختلف
               می‌تواند کسب کند.
             </p>
 
-            <div className="bg-indigo-700 rounded-xl p-4 space-y-2 border ">
+            <div className="bg-[#359C67] rounded-xl p-4 space-y-2 border ">
               <h4 className="font-bold text-white mb-2">کاربردهای دیجیت:</h4>
               <ul className="space-y-2 text-sm text-white list-disc list-inside">
                 <li>تبدیل به پول نقد در کیف پول</li>
@@ -399,7 +399,7 @@ function DefineTaskPage() {
             </div>
 
             <p className="text-sm text-gray-600">
-              با تعریف تسک‌های مختلف برای فرزند خود، می‌توانید به او کمک کنید تا
+              با تعریف ماموریت‌های مختلف برای فرزند خود، می‌توانید به او کمک کنید تا
               با انجام کارهای مفید، دیجیت کسب کند و مدیریت مالی را یاد بگیرد.
             </p>
           </div>

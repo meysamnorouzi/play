@@ -1,0 +1,51 @@
+# Example for app at root: https://example.com/
+# server {
+#     listen 80;
+#     server_name example.com;
+#     root /path/to/dist;
+#     index index.html;
+#     location ~* \.(js|mjs)$ {
+#         add_header Content-Type application/javascript;
+#         add_header Cache-Control "public, max-age=31536000, immutable";
+#     }
+#     location ~* \.css$ {
+#         add_header Content-Type text/css;
+#         add_header Cache-Control "public, max-age=31536000, immutable";
+#     }
+#     location / {
+#         try_files $uri $uri/ /index.html;
+#     }
+# }
+
+# --- Nginx (Engine X) for app at subpath: https://typeagain.ir/parent-app/ ---
+# Copy the location blocks below INTO your existing server { } for typeagain.ir.
+# Set root to the directory that CONTAINS the "parent-app" folder (e.g. /var/www/typeagain.ir).
+# Your dist/ contents must be in: <root>/parent-app/index.html and <root>/parent-app/assets/...
+#
+server {
+    listen 80;
+    server_name typeagain.ir;
+    root /path/to/your/website/root;   # e.g. /var/www/typeagain.ir
+
+    # CRITICAL: Serve JS/CSS under /parent-app/ with correct MIME type first.
+    # If these are missing, the browser gets HTML and shows the MIME type error.
+    location ~ ^/parent-app/assets/.*\.(js|mjs)$ {
+        add_header Content-Type application/javascript;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+    location ~ ^/parent-app/assets/.*\.css$ {
+        add_header Content-Type text/css;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # Other static assets under /parent-app/
+    location /parent-app/ {
+        try_files $uri $uri/ /parent-app/index.html;
+    }
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+}

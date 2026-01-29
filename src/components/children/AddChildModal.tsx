@@ -3,12 +3,23 @@ import { CheckIcon } from '@heroicons/react/24/outline';
 import Modal from '../Modal';
 import DatePicker from '../DatePicker';
 
-// List of available avatars
+// List of available avatars (from /image/avatars/) - used for default assignment
 const AVATARS = [
-  '/avatar/a3efb9801a4b75deacd1d69995b3615a.jpg',
-  '/avatar/8c6ddb5fe6600fcc4b183cb2ee228eb7.jpg',
-  '/avatar/c9192eb573b0b721c5a0bab6def82fbf.jpg',
-  '/avatar/0b976f0a7aa1aa43870e1812eee5a55d.jpg',
+  '/image/avatars/piri.svg',
+  '/image/avatars/hony.svg',
+  '/image/avatars/simi.svg',
+  '/image/avatars/rishi.svg',
+  '/image/avatars/kopi.svg',
+  '/image/avatars/sono.svg',
+  '/image/avatars/oso.svg',
+  '/image/avatars/hoso.svg',
+  '/image/avatars/kojo.svg',
+  '/image/avatars/koko.svg',
+  '/image/avatars/hobi.svg',
+  '/image/avatars/sojo.svg',
+  '/image/avatars/soso.svg',
+  '/image/avatars/momo.svg',
+  '/image/avatars/bobo.svg',
 ];
 
 interface AddChildModalProps {
@@ -29,7 +40,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
     lastName: '',
     nationalId: '',
     birthDate: '',
-    avatar: AVATARS[0],
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -71,14 +81,18 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      onAdd(formData);
+      // Assign a random default avatar
+      const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+      onAdd({
+        ...formData,
+        avatar: randomAvatar,
+      });
       // Reset form
       setFormData({
         firstName: '',
         lastName: '',
         nationalId: '',
         birthDate: '',
-        avatar: AVATARS[0],
       });
       setErrors({});
       onClose();
@@ -92,7 +106,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
       lastName: '',
       nationalId: '',
       birthDate: '',
-      avatar: AVATARS[0],
     });
     setErrors({});
     onClose();
@@ -106,54 +119,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
       maxHeight="90vh"
     >
       <div className="space-y-6" dir="rtl">
-        {/* Avatar selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
-            انتخاب تصویر پروفایل
-          </label>
-          
-          {/* Current avatar */}
-          <div className="flex justify-center mb-4">
-            <div className="relative w-24 h-24 rounded-full border-4 border-gray-900 overflow-hidden shadow-lg">
-              <img 
-                src={formData.avatar} 
-                alt="Avatar"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-
-          {/* Avatar grid */}
-          <div className="grid grid-cols-4 gap-3">
-            {AVATARS.map((avatar, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => handleInputChange('avatar', avatar)}
-                className={`relative w-full aspect-square rounded-full overflow-hidden transition-all transform hover:scale-105 ${
-                  formData.avatar === avatar 
-                    ? 'ring-4 ring-gray-900 ring-offset-2' 
-                    : 'ring-2 ring-gray-200 hover:ring-gray-400'
-                }`}
-              >
-                <img 
-                  src={avatar} 
-                  alt={`Avatar ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {formData.avatar === avatar && (
-                  <div className="absolute inset-0 bg-indigo-700/20 flex items-center justify-center">
-                    <CheckIcon className="w-8 h-8 text-white drop-shadow-lg" />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Separator line */}
-        <div className="border-t border-gray-200"></div>
-
         {/* First name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -236,17 +201,17 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
         {/* Action buttons */}
         <div className="flex gap-3 pt-4">
           <button
-            onClick={handleSubmit}
-            className="flex-1 bg-indigo-700 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
-          >
-            <CheckIcon className="w-5 h-5" />
-            افزودن فرزند
-          </button>
-          <button
             onClick={handleClose}
             className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-all"
           >
             انصراف
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-[#359C67] text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+          >
+            <CheckIcon className="w-5 h-5" />
+            افزودن فرزند
           </button>
         </div>
       </div>

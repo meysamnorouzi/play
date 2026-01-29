@@ -1,36 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PlusIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
-import ChildrenOnboarding from '../../components/children/ChildrenOnboarding';
+import { PlusIcon, ClipboardDocumentIcon, QrCodeIcon, UserCircleIcon , PlusCircleIcon } from '@heroicons/react/24/outline';
 import AddChildModal from '../../components/children/AddChildModal';
+import AddTaskModal from '../../components/children/AddTaskModal';
 import { QRCodeSVG } from 'qrcode.react';
 import Modal from '../../components/Modal';
-
-interface Slide {
-  title: string;
-  description: string;
-  image: string;
-  bgColor: string;
-  textColor: string;
-}
-
-const slides: Slide[] = [
-  {
-    title: 'مدیریت فرزندان',
-    description: 'در این صفحه می‌توانید اطلاعات فرزندان خود را مدیریت کنید و آن‌ها را اضافه یا ویرایش کنید',
-    image: '/image/c30443dd88560f56a71aef4bc60965b7.jpg',
-    bgColor: '#dde5f0',
-    textColor: '#000000',
-  },
-  {
-    title: 'دسترسی کامل',
-    description: 'به تمام فعالیت‌ها و تراکنش‌های مربوط به هر فرزند دسترسی داشته باشید و آن‌ها را پیگیری کنید',
-    image: '/image/68c1c772093c3c54af39e41cfbec79de.jpg',
-    bgColor: '#e98c20',
-    textColor: '#ffffff',
-  },
-];
+import { toPersianNumber } from '../../utils/numberUtils';
 
 interface Child {
   id: string;
@@ -47,22 +23,13 @@ interface Child {
 
 function ChildrenPage() {
   const navigate = useNavigate();
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [selectedChildForTask, setSelectedChildForTask] = useState<Child | null>(null);
   const [children, setChildren] = useState<Child[]>([]);
-  const [currentTime, setCurrentTime] = useState(Date.now());
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
   const [copied, setCopied] = useState(false);
-
-  // Update time every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 60000); // Every minute
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Calculate age from Persian birth date - kept for future use
   // const calculateAge = (birthDate: string): number => {
@@ -82,12 +49,6 @@ function ChildrenPage() {
   // };
 
   useEffect(() => {
-    // Check if user has seen this page before
-    const hasSeenChildrenPage = localStorage.getItem('childrenPageOnboardingSeen');
-    if (!hasSeenChildrenPage) {
-      setShowOnboarding(true);
-    }
-
     // Load children list from localStorage
     const storedChildren = localStorage.getItem('childrenList');
     if (storedChildren) {
@@ -113,11 +74,6 @@ function ChildrenPage() {
       localStorage.setItem('childrenList', JSON.stringify(childrenWithTime));
     }
   }, []);
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem('childrenPageOnboardingSeen', 'true');
-    setShowOnboarding(false);
-  };
 
   const handleAddChild = () => {
     setShowAddModal(true);
@@ -147,166 +103,175 @@ function ChildrenPage() {
     localStorage.setItem('childrenList', JSON.stringify(updatedChildren));
   };
 
-  // Function to calculate online/offline time
-  const getTimeStatus = (child: Child): string => {
-    if (child.isOnline && child.onlineSince) {
-      const minutes = Math.floor((currentTime - child.onlineSince) / 60000);
-      if (minutes < 1) {
-        return 'همین الان آنلاین شد';
-      }
-      return `${minutes} دقیقه آنلاین است`;
-    } else if (child.lastOnlineTime) {
-      const hours = Math.floor((currentTime - child.lastOnlineTime) / 3600000);
-      if (hours < 1) {
-        const minutes = Math.floor((currentTime - child.lastOnlineTime) / 60000);
-        return `${minutes} دقیقه پیش آنلاین بود`;
-      }
-      return `${hours} ساعت پیش آنلاین بود`;
-    }
-    return 'اطلاعاتی موجود نیست';
+  const handleAddTask = (task: { title: string; reward: number }) => {
+    if (!selectedChildForTask) return;
+
+    const taskData = {
+      id: Date.now().toString(),
+      title: task.title,
+      reward: task.reward,
+    };
+
+    // Load existing tasks
+    const storedTasks = localStorage.getItem(`tasks_${selectedChildForTask.id}`);
+    const existingTasks = storedTasks ? JSON.parse(storedTasks) : [];
+    
+    // Add new task
+    const updatedTasks = [...existingTasks, taskData];
+    localStorage.setItem(`tasks_${selectedChildForTask.id}`, JSON.stringify(updatedTasks));
+    
+    setShowAddTaskModal(false);
+    setSelectedChildForTask(null);
   };
 
+
   return (
-    <div className="min-h-screen" dir="rtl">
-      <AnimatePresence>
-        {showOnboarding ? (
-          <ChildrenOnboarding slides={slides} onComplete={handleOnboardingComplete} />
-        ) : (
+    <div className="w-full" dir="rtl">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="w-full flex flex-col"
+      >
+        {children.length === 0 ? (
+          // Empty state - show add child button
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="min-h-screen flex flex-col"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center justify-center py-16 px-4"
+        >
+          {/* Main Icon Container with Gradient Background */}
+          <div className='w-full mb-4'>
+            <img src="/icon/Parent_add_child.gif" alt="" className='w-full' />
+          </div>
+
+          {/* Text Content */}
+          <div className="text-center space-y-3 mb-8">
+            <h3 className="text-2xl font-bold text-gray-900">
+              هنوز فرزندی اضافه نشده است
+            </h3>
+            <p className="text-gray-600 text-base max-w-sm leading-relaxed">
+              برای شروع، اولین فرزند خود را اضافه کنید و مدیریت مالی او را آغاز کنید
+            </p>
+          </div>
+
+          {/* Action Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleAddChild}
+            className="flex items-center gap-2 bg-[#359C67] text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
           >
-            {children.length === 0 ? (
-              // Empty state - show add child button
-              <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-gray-50">
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold mb-3 text-gray-900">فرزندان</h1>
-                  <p className="text-gray-500 text-sm">هنوز هیچ فرزندی اضافه نکرده‌اید</p>
-                </div>
-                <motion.button
-                  onClick={handleAddChild}
-                  className="w-full max-w-sm bg-indigo-700 hover:bg-gray-800 text-white font-semibold py-3.5 rounded-xl text-base transition-colors shadow-sm"
-                  whileTap={{ scale: 0.98 }}
-                >
-                  افزودن فرزند
-                </motion.button>
-              </div>
-            ) : (
-              // Children list
-              <div className="flex-1 bg-gray-50 px-4 py-6 pb-24 w-full">
-                <div className="flex justify-between items-center mb-6">
-                  <h1 className="text-2xl font-bold text-gray-900">فرزندان</h1>
-                  <motion.button
-                    onClick={handleAddChild}
-                    className="bg-indigo-700 hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors shadow-sm"
-                    whileTap={{ scale: 0.98 }}
+            <PlusCircleIcon className="w-6 h-6" />
+            <span>افزودن فرزند</span>
+          </motion.button>
+
+
+        </motion.div>
+        ) : (
+          // Children list
+          <div className="flex-1 bg-gray-50 px-4 py-6 pb-24 w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold text-gray-900">فرزندان</h1>
+              <motion.button
+                onClick={handleAddChild}
+                className="bg-[#359C67] hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-xl text-sm transition-colors shadow-sm"
+                whileTap={{ scale: 0.98 }}
+              >
+                افزودن فرزند
+              </motion.button>
+            </div>
+            
+            {/* Children cards list */}
+            <div className="space-y-4">
+              <AnimatePresence>
+                {children.map((child, index) => (
+                  <motion.div
+                    key={child.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100"
+                    onClick={() => navigate(`/children/${child.id}`)}
                   >
-                    افزودن فرزند
-                  </motion.button>
-                </div>
-                
-                {/* Children cards list */}
-                <div className="space-y-3">
-                  <AnimatePresence>
-                    {children.map((child, index) => (
-                      <motion.div
-                        key={child.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer overflow-hidden"
-                        onClick={() => navigate(`/children/${child.id}`)}
+                    {/* Card Header with Gradient */}
+                    <div className="bg-gradient-to-l from-[#E8F5E9] to-purple-50 px-5 py-4">
+                      <div className="flex items-center gap-4">
+                        {/* Avatar */}
+                        <div className="relative shrink-0">
+                          <img
+                            src={child.avatar}
+                            alt={`${child.firstName} ${child.lastName}`}
+                            className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-md"
+                          />
+                        </div>
+
+                        {/* Information */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1.5 truncate">
+                            {child.firstName} {child.lastName}
+                          </h3>
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <UserCircleIcon className="w-4 h-4" />
+                            <span>کد ملی: {toPersianNumber(child.nationalId)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="px-5 py-4 space-y-3">
+                      {/* Action Buttons Row */}
+                      <div className="flex gap-2">
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigate(`/children/${child.id}`)
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-l from-[#359C67] to-[#359C67] hover:from-[#2E7D5A] hover:to-[#2E7D5A] text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm"
+                          whileTap={{ scale: 0.97 }}
+                          whileHover={{ scale: 1.02 }}
+                        >
+                          <UserCircleIcon className="w-5 h-5" />
+                          <span>جزئیات</span>
+                        </motion.button>
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedChild(child)
+                            setShowQRModal(true)
+                          }}
+                          className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-[#359C67] border-2 border-[#A5D6A7] hover:border-[#81C784] px-4 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm"
+                          whileTap={{ scale: 0.97 }}
+                          whileHover={{ scale: 1.02 }}
+                        >
+                          <QrCodeIcon className="w-5 h-5" />
+                        </motion.button>
+                      </div>
+                      
+                      {/* Define Task Button */}
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedChildForTask(child)
+                          setShowAddTaskModal(true)
+                        }}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-l from-purple-50 to-[#E8F5E9] hover:from-purple-100 hover:to-[#C8E6C9] text-[#359C67] border-2 border-[#C8E6C9] hover:border-[#A5D6A7] px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
                       >
-                        <div className="flex items-center gap-4 p-4">
-                          {/* Avatar */}
-                          <div className="relative shrink-0">
-                            <img
-                              src={child.avatar}
-                              alt={`${child.firstName} ${child.lastName}`}
-                              className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                            />
-                            {child.isOnline && (
-                              <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                            )}
-                          </div>
-
-                          {/* Information */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <h3 className="text-base font-bold text-gray-900 truncate">
-                                {child.firstName} {child.lastName}
-                              </h3>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <div className={`w-2 h-2 rounded-full ${
-                                  child.isOnline ? 'bg-green-500' : 'bg-gray-400'
-                                }`}></div>
-                                <span className={`text-xs font-medium ${
-                                  child.isOnline ? 'text-green-600' : 'text-gray-500'
-                                }`}>
-                                  {child.isOnline ? 'آنلاین' : 'آفلاین'}
-                                </span>
-                              </div>
-                            </div>
-                            <p className="text-xs text-gray-500 mb-1">
-                              {getTimeStatus(child)}
-                            </p>
-                            <div className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
-                    
-                              <span>کد ملی: {child.nationalId}</span>
-                            </div>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex flex-col gap-2 shrink-0">
-                            <motion.button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                navigate(`/children/${child.id}`)
-                              }}
-                              className="bg-indigo-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              جزئیات
-                            </motion.button>
-                            <motion.button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setSelectedChild(child)
-                                setShowQRModal(true)
-                              }}
-                              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              QR
-                            </motion.button>
-                          </div>
-                        </div>
-                        
-                        {/* Define Task Button */}
-                        <div className="border-t border-gray-100 px-4 py-3">
-                          <motion.button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              navigate(`/children/${child.id}/define-task`)
-                            }}
-                            className="w-full flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors border border-black"
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <PlusIcon className="w-4 h-4" />
-                            <span>تعریف تسک</span>
-                          </motion.button>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              </div>
-            )}
-          </motion.div>
+                        <PlusIcon className="w-5 h-5" />
+                        <span>تعریف ماموریت جدید</span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+      </motion.div>
       
       {/* Add child modal */}
       <AddChildModal
@@ -314,6 +279,18 @@ function ChildrenPage() {
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddChildSubmit}
       />
+
+      {/* Add task modal */}
+      {selectedChildForTask && (
+        <AddTaskModal
+          isOpen={showAddTaskModal}
+          onClose={() => {
+            setShowAddTaskModal(false);
+            setSelectedChildForTask(null);
+          }}
+          onAdd={handleAddTask}
+        />
+      )}
 
       {/* QR Code Modal */}
       <Modal
@@ -323,7 +300,7 @@ function ChildrenPage() {
           setSelectedChild(null)
           setCopied(false)
         }}
-        title="کیوارکد ورود"
+        title="QR ورود"
         maxHeight="80vh"
       >
         {selectedChild && (() => {
@@ -350,13 +327,13 @@ function ChildrenPage() {
                 />
               </div>
               <p className="text-sm text-gray-600 text-center max-w-xs mb-4">
-                این کیوارکد را برای ورود فرزند خود اسکن کنید
+                این QR را برای ورود فرزند خود اسکن کنید
               </p>
               
               {/* QR Code URL Display */}
               <div className="w-full max-w-md space-y-3 mt-auto">
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-                  <p className="text-xs text-gray-500 mb-2 text-right">آدرس کیوارکد:</p>
+                  <p className="text-xs text-gray-500 mb-2 text-right">آدرس QR:</p>
                   <button
                     onClick={handleCopy}
                     className="w-full text-left"
@@ -373,7 +350,7 @@ function ChildrenPage() {
                   className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all ${
                     copied
                       ? 'bg-green-100 text-green-700 border border-green-300'
-                      : 'bg-indigo-700 text-white hover:bg-gray-800'
+                      : 'bg-[#359C67] text-white hover:bg-gray-800'
                   }`}
                 >
                   <ClipboardDocumentIcon className="w-5 h-5" />

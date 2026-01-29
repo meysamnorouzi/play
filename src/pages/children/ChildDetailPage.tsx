@@ -14,6 +14,8 @@ import {
 import { AiOutlineFileText, AiOutlineWallet, AiOutlineShopping } from 'react-icons/ai';
 import { BsPiggyBank, BsFlag } from 'react-icons/bs';
 import Modal from '../../components/Modal';
+import AddTaskModal from '../../components/children/AddTaskModal';
+import { toPersianNumber } from '../../utils/numberUtils';
 
 interface Child {
   id: string;
@@ -59,7 +61,6 @@ function ChildDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [child, setChild] = useState<Child | null>(null);
-  const [currentTime, setCurrentTime] = useState(Date.now());
   const [activities, setActivities] = useState<Activity[]>([]);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -69,6 +70,7 @@ function ChildDetailPage() {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [walletActivities, setWalletActivities] = useState<any[]>([]);
   const [showCompletedTasksModal, setShowCompletedTasksModal] = useState(false);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
 
   // Create or load activities
   useEffect(() => {
@@ -99,13 +101,6 @@ function ChildDetailPage() {
     }
   }, [id]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Load wallet balance, goals, and allowance
   useEffect(() => {
@@ -244,6 +239,29 @@ function ChildDetailPage() {
     setWalletActivities(allActivities);
   };
 
+  const handleAddTask = (task: { title: string; reward: number }) => {
+    if (!id) return;
+
+    const taskData = {
+      id: Date.now().toString(),
+      title: task.title,
+      reward: task.reward,
+    };
+
+    // Load existing tasks
+    const storedTasks = localStorage.getItem(`tasks_${id}`);
+    const existingTasks = storedTasks ? JSON.parse(storedTasks) : [];
+    
+    // Add new task
+    const updatedTasks = [...existingTasks, taskData];
+    localStorage.setItem(`tasks_${id}`, JSON.stringify(updatedTasks));
+    
+    // Update definedTasks state
+    setDefinedTasks(updatedTasks);
+    
+    setShowAddTaskModal(false);
+  };
+
   // Generate sample data for activities
   const generateMockActivities = (): Activity[] => {
     const now = Date.now();
@@ -291,40 +309,6 @@ function ChildDetailPage() {
     ];
   };
 
-  const getTimeStatus = (child: Child): string => {
-    if (child.isOnline && child.onlineSince) {
-      const totalMinutes = Math.floor((currentTime - child.onlineSince) / 60000);
-      if (totalMinutes < 1) {
-        return 'همین الان آنلاین شد';
-      }
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      
-      if (hours > 0 && minutes > 0) {
-        return `${hours} ساعت و ${minutes} دقیقه آنلاین است`;
-      } else if (hours > 0) {
-        return `${hours} ساعت آنلاین است`;
-      } else {
-        return `${minutes} دقیقه آنلاین است`;
-      }
-    } else if (child.lastOnlineTime) {
-      const totalMinutes = Math.floor((currentTime - child.lastOnlineTime) / 60000);
-      if (totalMinutes < 1) {
-        return 'همین الان آنلاین بود';
-      }
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      
-      if (hours > 0 && minutes > 0) {
-        return `${hours} ساعت و ${minutes} دقیقه پیش آنلاین بود`;
-      } else if (hours > 0) {
-        return `${hours} ساعت پیش آنلاین بود`;
-      } else {
-        return `${minutes} دقیقه پیش آنلاین بود`;
-      }
-    }
-    return 'اطلاعاتی موجود نیست';
-  };
 
   const formatBalance = (balance: number): string => {
     return new Intl.NumberFormat('fa-IR').format(balance);
@@ -468,29 +452,19 @@ function ChildDetailPage() {
                 <h1 className="text-xl font-bold text-white drop-shadow-lg">
                   {child.firstName} {child.lastName}
                 </h1>
-                {child.birthDate && (
+              </div>
+              {child.birthDate && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-3 py-1 shadow-lg"
+                    className="bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-3 py-1 shadow-lg w-fit"
                   >
                     <span className="text-white text-xs font-semibold">
                       {calculateAge(child.birthDate)} سال
                     </span>
                   </motion.div>
                 )}
-              </div>
-              <div className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${
-                  child.isOnline ? 'bg-white animate-pulse' : 'bg-gray-400'
-                }`}></div>
-                <p className={`text-sm font-medium text-white drop-shadow-md ${
-                  child.isOnline ? 'text-white' : 'text-gray-200'
-                }`}>
-                  {getTimeStatus(child)}
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -502,39 +476,84 @@ function ChildDetailPage() {
         transition={{ delay: 0.2, duration: 0.6 }}
         className="bg-white rounded-t-3xl min-h-screen px-5 py-6 pb-24 -mt-12 relative z-10 "
       >
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          {/* Wallet Balance */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            onClick={() => {
-              loadWalletActivities();
-              setShowWalletModal(true);
-            }}
-            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-4 shadow-lg cursor-pointer hover:from-gray-700 hover:to-gray-800 transition-all active:scale-[0.98]"
+                {/* Define Task Button */}
+                <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-6"
+        >
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowAddTaskModal(true)}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-gray-800 to-gray-900 text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-lg hover:from-gray-700 hover:to-gray-800 transition-all"
           >
-            <div className="flex items-center justify-between mb-2">
-              <WalletIcon className="w-6 h-6 text-white/90" />
-            </div>
-            <p className="text-white/80 text-xs mb-1">موجودی کیف پول</p>
-            <p className="text-white text-lg font-bold">{formatBalance(walletBalance)} تومان</p>
-          </motion.div>
+            <PlusIcon className="w-5 h-5" />
+            <span>تعریف ماموریت</span>
+          </motion.button>
+        </motion.div>
+        {/* Wallet Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          onClick={() => {
+            loadWalletActivities();
+            setShowWalletModal(true);
+          }}
+          className="mb-6 cursor-pointer"
+        >
+          <div className="relative bg-gradient-to-br from-[#359C67] via-[#359C67] to-[#2E7D5A] rounded-3xl p-6 shadow-2xl overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+            
+            <div className="relative z-10">
+              {/* Top Section */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-white/70 text-xs font-medium mb-1"> کیف پول</p>
+                </div>
+              </div>
 
+              {/* Balance Display */}
+              <div className="flex items-center gap-2 mb-4 justify-center">
+                <p className="text-white text-3xl font-bold">
+                  {formatBalance(walletBalance)}
+                </p>
+                <p className="text-white/70 text-sm font-medium">تومان</p>
+              </div>
+
+              {/* Bottom Section */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/60 text-xs mb-1">صاحب کارت</p>
+                  <p className="text-white text-sm font-semibold">
+                    {child?.firstName} {child?.lastName}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
           {/* Tasks Stats */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.35 }}
             onClick={() => navigate(`/children/${id}/define-task`)}
-            className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-4 shadow-lg cursor-pointer hover:from-gray-600 hover:to-gray-700 transition-all active:scale-[0.98]"
+            className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
           >
-            <div className="flex items-center justify-between mb-2">
-              <ChartBarIcon className="w-6 h-6 text-white/90" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-[#C8E6C9] rounded-xl flex items-center justify-center mb-3">
+                <ChartBarIcon className="w-6 h-6 text-[#359C67]" />
+              </div>
+              <p className="text-gray-500 text-xs mb-1">تعریف شده</p>
+              <p className="text-gray-900 text-xl font-bold">{toPersianNumber(definedTasks.length)}</p>
             </div>
-            <p className="text-white/80 text-xs mb-1">تسک‌های تعریف شده</p>
-            <p className="text-white text-lg font-bold">{definedTasks.length} تسک</p>
           </motion.div>
 
           {/* Completed Tasks */}
@@ -543,13 +562,15 @@ function ChildDetailPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
             onClick={() => setShowCompletedTasksModal(true)}
-            className="bg-gradient-to-br from-gray-600 to-gray-700 rounded-2xl p-4 shadow-lg cursor-pointer hover:from-gray-500 hover:to-gray-600 transition-all active:scale-[0.98]"
+            className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition-all active:scale-[0.98]"
           >
-            <div className="flex items-center justify-between mb-2">
-              <TrophyIcon className="w-6 h-6 text-white/90" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-3">
+                <TrophyIcon className="w-6 h-6 text-green-700" />
+              </div>
+              <p className="text-gray-500 text-xs mb-1">انجام شده</p>
+              <p className="text-gray-900 text-xl font-bold">{toPersianNumber(tasksStats.completed)}</p>
             </div>
-            <p className="text-white/80 text-xs mb-1">تسک‌های انجام شده</p>
-            <p className="text-white text-lg font-bold">{tasksStats.completed} تسک</p>
           </motion.div>
 
           {/* Total Digits */}
@@ -557,34 +578,19 @@ function ChildDetailPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.45 }}
-            className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-4 shadow-lg"
+            className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
           >
-            <div className="flex items-center justify-between mb-2">
-              <CurrencyDollarIcon className="w-6 h-6 text-white/90" />
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-3">
+                <CurrencyDollarIcon className="w-6 h-6 text-yellow-700" />
+              </div>
+              <p className="text-gray-500 text-xs mb-1">دیجیت‌ها</p>
+              <p className="text-gray-900 text-xl font-bold">
+                {toPersianNumber(activities.reduce((sum, a) => sum + (a.points || 0), 0))}
+              </p>
             </div>
-            <p className="text-white/80 text-xs mb-1">مجموع دیجیت‌ها</p>
-            <p className="text-white text-lg font-bold">
-              {activities.reduce((sum, a) => sum + (a.points || 0), 0)} دیجیت
-            </p>
           </motion.div>
         </div>
-
-        {/* Define Task Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-6"
-        >
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate(`/children/${id}/define-task`)}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-gray-800 to-gray-900 text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-lg hover:from-gray-700 hover:to-gray-800 transition-all"
-          >
-            <PlusIcon className="w-5 h-5" />
-            <span>تعریف تسک</span>
-          </motion.button>
-        </motion.div>
 
         {/* Goals Section */}
         {goals.length > 0 && (
@@ -640,27 +646,38 @@ function ChildDetailPage() {
                   <BsPiggyBank className="w-5 h-5 text-gray-800" />
                   <h4 className="font-bold text-gray-900">حقوق هفتگی</h4>
                 </div>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`allowance-${id}`}
-                      checked={allowance.isActive}
-                      onChange={toggleAllowance}
-                      className="w-4 h-4 text-gray-800 focus:ring-2 focus:ring-gray-700 focus:ring-offset-2 cursor-pointer"
+                <div className="flex items-center gap-3">
+                  <span className={`text-xs font-medium transition-colors ${
+                    !allowance.isActive ? 'text-gray-900' : 'text-gray-500'
+                  }`}>
+                    غیرفعال
+                  </span>
+                  <button
+                    onClick={toggleAllowance}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#359C67] focus:ring-offset-2 ${
+                      allowance.isActive ? 'bg-[#359C67]' : 'bg-gray-300'
+                    }`}
+                    type="button"
+                    role="switch"
+                    aria-checked={allowance.isActive}
+                  >
+                    <motion.span
+                      className="inline-block h-5 w-5 rounded-full bg-white shadow-lg"
+                      animate={{
+                        x: allowance.isActive ? -22 : -2,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
                     />
-                    <span className="text-sm text-gray-700">فعال</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`allowance-${id}`}
-                      checked={!allowance.isActive}
-                      onChange={toggleAllowance}
-                      className="w-4 h-4 text-gray-400 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 cursor-pointer"
-                    />
-                    <span className="text-sm text-gray-700">غیرفعال</span>
-                  </label>
+                  </button>
+                  <span className={`text-xs font-medium transition-colors ${
+                    allowance.isActive ? 'text-gray-900' : 'text-gray-500'
+                  }`}>
+                    فعال
+                  </span>
                 </div>
               </div>
               <p className="text-sm text-gray-700 mb-1">
@@ -682,8 +699,8 @@ function ChildDetailPage() {
             className="mb-6"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">تسک‌های فعال</h3>
-              <span className="text-sm text-gray-500">{activeActivities.length} تسک</span>
+              <h3 className="text-lg font-bold text-gray-900">ماموریت‌های فعال</h3>
+              <span className="text-sm text-gray-500">{toPersianNumber(activeActivities.length)} ماموریت</span>
             </div>
             <div className="space-y-3">
               {activeActivities.slice(0, 3).map((activity, index) => (
@@ -717,7 +734,7 @@ function ChildDetailPage() {
                         {activity.points !== undefined && activity.points > 0 && (
                           <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2 py-1 rounded-md font-semibold border border-yellow-200">
                             <CurrencyDollarIcon className="w-3 h-3" />
-                            {activity.points} دیجیت
+                            {toPersianNumber(activity.points)} دیجیت
                           </span>
                         )}
                       </div>
@@ -738,7 +755,7 @@ function ChildDetailPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">فعالیت‌های انجام شده</h3>
-              <span className="text-sm text-gray-500">{completedActivities.length} فعالیت</span>
+              <span className="text-sm text-gray-500">{toPersianNumber(completedActivities.length)} فعالیت</span>
             </div>
             <div className="space-y-3">
               {completedActivities.slice(0, 5).map((activity, index) => (
@@ -767,7 +784,7 @@ function ChildDetailPage() {
                         {activity.points !== undefined && activity.points > 0 && (
                           <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2 py-1 rounded-md font-semibold border border-yellow-200">
                             <CurrencyDollarIcon className="w-3 h-3" />
-                            {activity.points} دیجیت
+                            {toPersianNumber(activity.points)} دیجیت
                           </span>
                         )}
                       </div>
@@ -860,7 +877,7 @@ function ChildDetailPage() {
       <Modal
         isOpen={showCompletedTasksModal}
         onClose={() => setShowCompletedTasksModal(false)}
-        title="تسک‌های انجام شده"
+        title="ماموریت‌های انجام شده"
         maxHeight="80vh"
       >
         <div className="space-y-4">
@@ -896,7 +913,7 @@ function ChildDetailPage() {
                         {activity.points !== undefined && activity.points > 0 && (
                           <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2 py-1 rounded-md text-xs font-semibold border border-yellow-200">
                             <CurrencyDollarIcon className="w-3 h-3" />
-                            {activity.points} دیجیت
+                            {toPersianNumber(activity.points)} دیجیت
                           </span>
                         )}
                       </div>
@@ -910,11 +927,20 @@ function ChildDetailPage() {
               <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <TrophyIcon className="w-8 h-8 text-gray-400" />
               </div>
-              <p className="text-gray-500 text-sm">هنوز تسک انجام شده‌ای وجود ندارد</p>
+              <p className="text-gray-500 text-sm">هنوز ماموریت انجام شده‌ای وجود ندارد</p>
             </div>
           )}
         </div>
       </Modal>
+
+      {/* Add task modal */}
+      {id && (
+        <AddTaskModal
+          isOpen={showAddTaskModal}
+          onClose={() => setShowAddTaskModal(false)}
+          onAdd={handleAddTask}
+        />
+      )}
     </div>
   );
 }

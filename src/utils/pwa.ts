@@ -1,6 +1,10 @@
 // Utility functions for PWA
+// Service Worker functionality disabled temporarily due to server MIME type issues
 
 export function registerServiceWorker() {
+  // Service Worker registration disabled temporarily
+  // Uncomment below to re-enable service worker registration
+  /*
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker
@@ -13,6 +17,7 @@ export function registerServiceWorker() {
         })
     })
   }
+  */
 }
 
 export function isPWAInstalled(): boolean {

@@ -1,3 +1,4 @@
+// Service Worker functionality disabled temporarily due to server MIME type issues
 import { useEffect, useState } from 'react'
 
 interface UpdateSWResult {
@@ -7,10 +8,14 @@ interface UpdateSWResult {
 }
 
 export function useSWUpdate(): UpdateSWResult {
-  const [needRefresh, setNeedRefresh] = useState(false)
-  const [offlineReady, setOfflineReady] = useState(false)
+  // Service Worker disabled - returning default values
+  const [needRefresh] = useState(false)
+  const [offlineReady] = useState(false)
 
   useEffect(() => {
+    // Service Worker functionality disabled temporarily
+    // All service worker code commented out below
+    /*
     let refreshing = false
     let updateInterval: number | undefined
 
@@ -79,22 +84,24 @@ export function useSWUpdate(): UpdateSWResult {
         clearInterval(updateInterval)
       }
     }
+    */
   }, [])
 
-  const updateServiceWorker = async (reloadPage = false) => {
-    if (!('serviceWorker' in navigator)) return
+  const updateServiceWorker = async (_reloadPage = false) => {
+    // Service Worker disabled - no-op function
+    // if (!('serviceWorker' in navigator)) return
 
-    const registration = await navigator.serviceWorker.getRegistration()
-    if (!registration || !registration.waiting) return
+    // const registration = await navigator.serviceWorker.getRegistration()
+    // if (!registration || !registration.waiting) return
 
-    // Tell the waiting service worker to skip waiting and become active
-    registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+    // // Tell the waiting service worker to skip waiting and become active
+    // registration.waiting.postMessage({ type: 'SKIP_WAITING' })
     
-    setNeedRefresh(false)
+    // setNeedRefresh(false)
 
-    if (reloadPage) {
-      window.location.reload()
-    }
+    // if (reloadPage) {
+    //   window.location.reload()
+    // }
   }
 
   return {

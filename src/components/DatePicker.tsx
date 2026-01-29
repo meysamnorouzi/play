@@ -283,7 +283,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
                 <button
                   type="button"
                   onClick={handleConfirm}
-                  className="w-full px-4 py-3 rounded-xl bg-indigo-700 hover:bg-gray-800 text-white font-semibold shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
+                  className="w-full px-4 py-3 rounded-xl bg-[#359C67] hover:bg-gray-800 text-white font-semibold shadow-lg shadow-gray-300 transition-all active:scale-[0.98]"
                 >
                   تایید
                 </button>

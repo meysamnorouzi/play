@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AiOutlineFileText, AiOutlineInbox, AiOutlineWallet, AiOutlineShopping, AiOutlineRest, AiOutlineUserAdd } from 'react-icons/ai'
-import { BsFlag, BsPeople } from 'react-icons/bs'
-import { UserGroupIcon, PlusCircleIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
+import { AiOutlineFileText, AiOutlineInbox, AiOutlineWallet, AiOutlineShopping, AiOutlineRest } from 'react-icons/ai'
+import { BsFlag } from 'react-icons/bs'
+import { PlusCircleIcon, CurrencyDollarIcon, WalletIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import TasksModal from '../../components/home/TasksModal'
 import RequestsModal from '../../components/home/RequestsModal'
+import AddChildModal from '../../components/children/AddChildModal'
 import HomeHeader from './HomeHeader'
+import { toPersianNumber } from '../../utils/numberUtils'
 
 interface Child {
   id: string;
@@ -68,16 +69,15 @@ interface Activity {
 }
 
 function Home() {
-  const navigate = useNavigate()
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [activeChildId, setActiveChildId] = useState<string | null>(null)
   const [showTasksModal, setShowTasksModal] = useState(false)
   const [showRequestsModal, setShowRequestsModal] = useState(false)
+  const [showAddChildModal, setShowAddChildModal] = useState(false)
   const [tasks, setTasks] = useState<Task[]>([])
   const [requests, setRequests] = useState<Request[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
-  const [allowances, setAllowances] = useState<Allowance[]>([])
   const [activities, setActivities] = useState<Activity[]>([])
 
   useEffect(() => {
@@ -86,12 +86,12 @@ function Home() {
     if (storedChildren) {
       const parsedChildren = JSON.parse(storedChildren)
       setChildren(parsedChildren)
-      
+
       // Set first child as active if there are 2 or more children
       if (parsedChildren.length >= 2 && parsedChildren.length > 0) {
         setActiveChildId(parsedChildren[0].id)
       }
-      
+
       // Load goals, allowances, and activities for all children
       loadAdditionalData(parsedChildren)
     }
@@ -99,7 +99,6 @@ function Home() {
 
   const loadAdditionalData = (childrenList: Child[]) => {
     const allGoals: Goal[] = []
-    const allAllowances: Allowance[] = []
     const allActivities: Activity[] = []
 
     childrenList.forEach((child) => {
@@ -125,10 +124,7 @@ function Home() {
       // Load allowances
       const allowanceKey = `childAllowance_${child.id}`
       const storedAllowance = localStorage.getItem(allowanceKey)
-      if (storedAllowance) {
-        const parsedAllowance: Allowance = JSON.parse(storedAllowance)
-        allAllowances.push(parsedAllowance)
-      } else {
+      if (!storedAllowance) {
         // Create sample allowance
         const nextFriday = new Date()
         nextFriday.setDate(nextFriday.getDate() + (5 - nextFriday.getDay() + 7) % 7)
@@ -140,7 +136,6 @@ function Home() {
           nextPayout: nextFriday.getTime()
         }
         localStorage.setItem(allowanceKey, JSON.stringify(sampleAllowance))
-        allAllowances.push(sampleAllowance)
       }
 
       // Load activities
@@ -178,7 +173,6 @@ function Home() {
     })
 
     setGoals(allGoals)
-    setAllowances(allAllowances)
     setActivities(allActivities.sort((a, b) => b.date - a.date))
   }
 
@@ -209,13 +203,13 @@ function Home() {
     const storedActivities = localStorage.getItem(activitiesKey)
     let activeCount = 0
     let completedCount = 0
-    
+
     if (storedActivities) {
       const activities: Task[] = JSON.parse(storedActivities)
       activeCount = activities.filter(a => a.status === 'pending' || a.status === 'in-progress').length
       completedCount = activities.filter(a => a.status === 'completed').length
     }
-    
+
     return { activeCount, completedCount }
   }
 
@@ -333,7 +327,7 @@ function Home() {
   const handleTasksClick = (child: Child, e: React.MouseEvent) => {
     e.stopPropagation()
     setSelectedChild(child)
-    
+
     // Load tasks
     const activitiesKey = `childActivities_${child.id}`
     const storedActivities = localStorage.getItem(activitiesKey)
@@ -410,13 +404,14 @@ function Home() {
   const handleRequestsClick = (child: Child, e: React.MouseEvent) => {
     e.stopPropagation()
     setSelectedChild(child)
-    
+
     // Load requests
     const requestsKey = `childRequests_${child.id}`
     const storedRequests = localStorage.getItem(requestsKey)
     if (storedRequests) {
       const requests: Request[] = JSON.parse(storedRequests)
-      setRequests(requests.filter(r => r.status === 'pending'))
+      // Show all requests, sorted by date (newest first)
+      setRequests(requests.sort((a, b) => b.date - a.date))
     } else {
       // Create sample data
       const mockRequests: Request[] = [
@@ -438,20 +433,43 @@ function Home() {
         }
       ]
       localStorage.setItem(requestsKey, JSON.stringify(mockRequests))
-      setRequests(mockRequests.filter(r => r.status === 'pending'))
+      setRequests(mockRequests.sort((a, b) => b.date - a.date))
     }
 
     setShowRequestsModal(true)
   }
 
-  const toggleAllowance = (childId: string) => {
-    const allowanceKey = `childAllowance_${childId}`
-    const storedAllowance = localStorage.getItem(allowanceKey)
-    if (storedAllowance) {
-      const allowance: Allowance = JSON.parse(storedAllowance)
-      allowance.isActive = !allowance.isActive
-      localStorage.setItem(allowanceKey, JSON.stringify(allowance))
-      setAllowances(prev => prev.map(a => a.childId === childId ? allowance : a))
+  const handleApproveRequest = (requestId: string) => {
+    if (!selectedChild) return
+
+    const requestsKey = `childRequests_${selectedChild.id}`
+    const storedRequests = localStorage.getItem(requestsKey)
+    
+    if (storedRequests) {
+      const allRequests: Request[] = JSON.parse(storedRequests)
+      const updatedRequests = allRequests.map(req =>
+        req.id === requestId ? { ...req, status: 'approved' as const } : req
+      )
+      localStorage.setItem(requestsKey, JSON.stringify(updatedRequests))
+      // Update state to show all requests, sorted by date
+      setRequests(updatedRequests.sort((a, b) => b.date - a.date))
+    }
+  }
+
+  const handleRejectRequest = (requestId: string) => {
+    if (!selectedChild) return
+
+    const requestsKey = `childRequests_${selectedChild.id}`
+    const storedRequests = localStorage.getItem(requestsKey)
+    
+    if (storedRequests) {
+      const allRequests: Request[] = JSON.parse(storedRequests)
+      const updatedRequests = allRequests.map(req =>
+        req.id === requestId ? { ...req, status: 'rejected' as const } : req
+      )
+      localStorage.setItem(requestsKey, JSON.stringify(updatedRequests))
+      // Update state to show all requests, sorted by date
+      setRequests(updatedRequests.sort((a, b) => b.date - a.date))
     }
   }
 
@@ -460,7 +478,7 @@ function Home() {
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const hours = Math.floor(diff / (1000 * 60 * 60))
-    
+
     if (hours < 24) {
       if (hours === 0) {
         return `امروز، ${date.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}`
@@ -511,45 +529,83 @@ function Home() {
     : children
 
   return (
-    <div className="min-h-screen bg-indigo-700" dir="rtl">
+    <div className="p-0" dir="rtl">
       {/* Home Header */}
       <HomeHeader />
-      
-      <div className="bg-white min-h-screen px-4 py-6 rounded-t-3xl">
+
+      <div className="bg-white px-4 py-6 rounded-t-3xl -mt-10">
         {children.length > 0 ? (
           <div className="space-y-4">
-            {/* Tabs for multiple children */}
-            {children.length >= 2 && (
-              <div className={`flex gap-2 pb-2 mb-4 ${children.length === 2 ? '' : 'overflow-x-auto scrollbar-hide'}`} style={children.length > 2 ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : {}}>
+            {/* Children Cards for multiple children */}
+            {children.length >= 1 && (
+              <div
+                className="flex gap-8 mb-4 overflow-x-auto scrollbar-hide p-2"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
                 {children.map((child, index) => (
-                  <motion.button
+                  <motion.div
                     key={child.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                     onClick={() => setActiveChildId(child.id)}
-                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all whitespace-nowrap ${
-                      children.length === 2 ? 'flex-1' : 'shrink-0'
-                    } ${
-                      activeChildId === child.id
-                        ? 'bg-indigo-700 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`relative bg-gradient-to-br from-[#359C67] via-[#359C67] to-[#2E7D5A] rounded-3xl p-5 shadow-2xl overflow-hidden transition-all cursor-pointer flex-shrink-0 ${activeChildId === child.id
+                        ? 'ring-4 ring-[#81C784] ring-offset-2'
+                        : 'opacity-90'
+                      }`}
+                    style={{
+                      width: children.length === 1 ? '100%' : '90%',
+                      scrollSnapAlign: 'start'
+                    }}
                   >
-                    <div className="relative">
-                      <img
-                        src={child.avatar}
-                        alt={`${child.firstName} ${child.lastName}`}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
-                      />
-                      {child.isOnline && (
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                      )}
+                    {/* Decorative circles */}
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent"></div>
+
+                    <div className="relative z-10">
+                      {/* Top Section */}
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-white/20 rounded-2xl blur-sm"></div>
+                            <img
+                              src={child.avatar}
+                              alt={`${child.firstName} ${child.lastName}`}
+                              className="relative w-14 h-14 rounded-2xl object-cover border-2 border-white/40 shadow-lg"
+                            />
+                          </div>
+                          <div>
+                            <h4 className="text-white text-base font-bold truncate mb-0.5">
+                              {child.firstName} {child.lastName}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <WalletIcon className="w-3.5 h-3.5 text-white/70" />
+                              <p className="text-white/70 text-xs">کیف پول</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                          <WalletIcon className="w-6 h-6 text-white/90" />
+                        </div>
+                      </div>
+
+                      {/* Balance Display */}
+                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                        <p className="text-white/70 text-xs text-center mb-2">موجودی</p>
+                        <div className="flex items-center justify-center gap-2">
+                          <p className="text-white text-2xl font-bold">
+                            {formatBalance(getChildWalletBalance(child.id))}
+                          </p>
+                          <p className="text-white/70 text-sm font-medium">تومان</p>
+                        </div>
+                      </div>
                     </div>
-                    <span className="font-semibold text-sm">
-                      {child.firstName} {child.lastName}
-                    </span>
-                  </motion.button>
+                  </motion.div>
                 ))}
               </div>
             )}
@@ -558,47 +614,37 @@ function Home() {
               const { tasksCount, requestsCount } = getChildStats(child.id)
               const { activeCount, completedCount } = getTasksStats(child.id)
               const childGoals = goals.filter(g => g.childId === child.id)
-              const childAllowance = allowances.find(a => a.childId === child.id)
               const childActivities = activities.filter(a => a.childId === child.id).slice(0, 5)
               const recentTasks = getRecentTasks(child.id)
-              
+
               return (
-                <motion.div 
-                  key={child.id} 
+                <motion.div
+                  key={child.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                   className="space-y-4"
                 >
-                  {/* Child Card */}
-                  <motion.div 
+                  {/* Child Info Section */}
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="bg-white rounded-xl p-5 border border-gray-200 transition-all"
+                    className="my-8"
                   >
-                    {/* Top section: image and information */}
-                    <div className="flex items-center gap-4 mb-5 pb-5 border-b border-gray-100">
-                      {/* Avatar */}
+                    {/* Child Header */}
+                    <div className="flex items-center gap-4 mb-4">
                       <div className="relative">
                         <img
                           src={child.avatar}
                           alt={`${child.firstName} ${child.lastName}`}
-                          className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                          className="w-16 h-16 rounded-2xl object-cover border-2 border-gray-200"
                         />
-                        {child.isOnline && (
-                          <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                        )}
                       </div>
-
-                      {/* Information */}
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1.5">
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">
                           {child.firstName} {child.lastName}
                         </h3>
-                        <p className="text-sm text-gray-600 font-medium">
-                          موجودی: <span className="text-gray-900">{formatBalance(getChildWalletBalance(child.id))}</span> تومان
-                        </p>
                       </div>
                     </div>
 
@@ -607,165 +653,156 @@ function Home() {
                       {/* Task count */}
                       <button
                         onClick={(e) => handleTasksClick(child, e)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-700 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#359C67] text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold shadow-sm"
                       >
                         <AiOutlineFileText className="w-5 h-5" />
-                        <span className="text-base">{tasksCount}</span>
-                        <span className="text-sm opacity-90">تسک</span>
+                        <span className="text-base">{toPersianNumber(tasksCount)}</span>
+                        <span className="text-sm opacity-90">ماموریت</span>
                       </button>
 
                       {/* Request count */}
                       <button
                         onClick={(e) => handleRequestsClick(child, e)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-700 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#359C67] text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold shadow-sm"
                       >
                         <AiOutlineInbox className="w-5 h-5" />
-                        <span className="text-base">{requestsCount}</span>
+                        <span className="text-base">{toPersianNumber(requestsCount)}</span>
                         <span className="text-sm opacity-90">درخواست</span>
                       </button>
                     </div>
                   </motion.div>
 
-                  {/* Additional Features - Compact Vertical Layout */}
-                  <div className="flex flex-col gap-2">
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
                     {/* Saving Pot */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
-                      className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2"
+                      className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
                     >
-                      <AiOutlineWallet className="w-5 h-5 text-gray-700 shrink-0" />
-                      <span className="text-xs font-semibold text-gray-900 whitespace-nowrap">پس‌انداز:</span>
-                      <span className="text-xs font-bold text-gray-900">
-                        {formatBalance(childGoals.reduce((sum, goal) => sum + goal.currentAmount, 0))} تومان
-                      </span>
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-[#C8E6C9] rounded-xl flex items-center justify-center mb-2">
+                          <AiOutlineWallet className="w-6 h-6 text-[#359C67]" />
+                        </div>
+                        <p className="text-gray-500 text-xs mb-1">پس‌انداز</p>
+                        <p className="text-gray-900 text-sm font-bold">
+                          {formatBalance(childGoals.reduce((sum, goal) => sum + goal.currentAmount, 0))}
+                        </p>
+                      </div>
                     </motion.div>
 
                     {/* Goal Card */}
                     {childGoals.length > 0 ? (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2"
+                        className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
                       >
-                        <div className="relative w-8 h-8 shrink-0">
-                          <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 64 64">
-                            <circle
-                              cx="32"
-                              cy="32"
-                              r="28"
-                              stroke="#e5e7eb"
-                              strokeWidth="6"
-                              fill="none"
-                            />
-                            <circle
-                              cx="32"
-                              cy="32"
-                              r="28"
-                              stroke="#3b82f6"
-                              strokeWidth="6"
-                              fill="none"
-                              strokeDasharray={`${Math.min((childGoals[0].currentAmount / childGoals[0].targetAmount) * 175.9, 175.9)} 175.9`}
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-gray-700">
-                              {Math.round((childGoals[0].currentAmount / childGoals[0].targetAmount) * 100)}%
-                            </span>
+                        <div className="flex flex-col items-center text-center">
+                          <div className="relative w-12 h-12 mb-2">
+                            <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 64 64">
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="28"
+                                stroke="#e5e7eb"
+                                strokeWidth="6"
+                                fill="none"
+                              />
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="28"
+                                stroke="#3b82f6"
+                                strokeWidth="6"
+                                fill="none"
+                                strokeDasharray={`${Math.min((childGoals[0].currentAmount / childGoals[0].targetAmount) * 175.9, 175.9)} 175.9`}
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-xs font-bold text-gray-700">
+                                {toPersianNumber(Math.round((childGoals[0].currentAmount / childGoals[0].targetAmount) * 100))}%
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1 min-w-0 flex-1">
-                          <span className="text-xs font-semibold text-gray-900 truncate">{childGoals[0].title}</span>
-                          <span className="text-[10px] text-gray-500 shrink-0">
-                            {formatBalance(childGoals[0].currentAmount)}/{formatBalance(childGoals[0].targetAmount)}
-                          </span>
+                          <p className="text-gray-500 text-xs mb-1 truncate w-full">{childGoals[0].title}</p>
+                          <p className="text-gray-900 text-xs font-bold">
+                            {formatBalance(childGoals[0].currentAmount)}
+                          </p>
                         </div>
                       </motion.div>
                     ) : (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2"
+                        className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
                       >
-                        <BsFlag className="w-5 h-5 text-gray-400 shrink-0" />
-                        <span className="text-xs text-gray-500 whitespace-nowrap">هدف جدید</span>
-                      </motion.div>
-                    )}
-
-                    {/* Weekly Allowance */}
-                    {childAllowance && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.4 }}
-                        className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2"
-                      >
-                        <div className="flex items-center gap-2 flex-1">
-                          <span className="text-xs font-semibold text-gray-900 whitespace-nowrap">حقوق هفتگی:</span>
-                          <span className="text-xs text-gray-600 whitespace-nowrap">
-                            {formatBalance(childAllowance.amount)} تومان
-                          </span>
+                        <div className="flex flex-col items-center text-center">
+                          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-2">
+                            <BsFlag className="w-6 h-6 text-gray-400" />
+                          </div>
+                          <p className="text-gray-500 text-xs">هدف جدید</p>
                         </div>
-                        <button
-                          onClick={() => toggleAllowance(child.id)}
-                          className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
-                            childAllowance.isActive ? 'bg-indigo-700' : 'bg-gray-300'
-                          }`}
-                        >
-                          <div
-                            className={`absolute top-0.5 right-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                              childAllowance.isActive ? '-translate-x-5' : 'translate-x-0'
-                            }`}
-                          />
-                        </button>
                       </motion.div>
                     )}
 
                     {/* Missions Summary */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
-                      className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-2"
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                      className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
                     >
-                      <span className="text-xs font-semibold text-gray-900 whitespace-nowrap">مأموریت:</span>
-                      <span className="text-xs text-gray-600 whitespace-nowrap">فعال {activeCount}</span>
-                      <span className="text-xs text-gray-600 whitespace-nowrap">|</span>
-                      <span className="text-xs text-gray-600 whitespace-nowrap">انجام شده {completedCount}</span>
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-2">
+                          <AiOutlineFileText className="w-6 h-6 text-green-700" />
+                        </div>
+                        <p className="text-gray-500 text-xs mb-1">مأموریت</p>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-gray-900 text-xs font-bold">فعال: {toPersianNumber(activeCount)}</span>
+                          <span className="text-gray-600 text-xs">انجام: {toPersianNumber(completedCount)}</span>
+                        </div>
+                      </div>
                     </motion.div>
                   </div>
 
                   {/* Recent Activity */}
                   {childActivities.length > 0 && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.6 }}
-                      className="bg-white rounded-xl p-4 border border-gray-200"
+                      transition={{ duration: 0.5, delay: 0.5 }}
+                      className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm"
                     >
-                      <p className="text-sm font-semibold text-gray-900 mb-4">فعالیت‌های اخیر</p>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-bold text-gray-900">فعالیت‌های اخیر</h3>
+                        <span className="text-xs text-gray-500">{toPersianNumber(childActivities.length)} مورد</span>
+                      </div>
                       <div className="space-y-3">
                         {childActivities.map((activity, index) => (
-                          <motion.div 
+                          <motion.div
                             key={activity.id}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                            className="flex items-center gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                            transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
+                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                           >
-                            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 shrink-0">
-                              {getActivityIcon(activity.icon)}
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${activity.type === 'expense' ? 'bg-red-100' : 'bg-green-100'
+                              }`}>
+                              <div className={activity.type === 'expense' ? 'text-red-600' : 'text-green-600'}>
+                                {getActivityIcon(activity.icon)}
+                              </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{activity.title}</p>
+                              <p className="text-sm font-semibold text-gray-900 truncate mb-1">{activity.title}</p>
                               <p className="text-xs text-gray-500">{formatTime(activity.date)}</p>
                             </div>
-                            <p className={`text-sm font-semibold shrink-0 ${activity.type === 'expense' ? 'text-red-600' : 'text-green-600'}`}>
-                              {activity.type === 'expense' ? '-' : '+'} {formatBalance(activity.amount)} تومان
+                            <p className={`text-base font-bold shrink-0 ${activity.type === 'expense' ? 'text-red-600' : 'text-green-600'}`}>
+                              {activity.type === 'expense' ? '-' : '+'} {formatBalance(activity.amount)}
                             </p>
                           </motion.div>
                         ))}
@@ -775,34 +812,37 @@ function Home() {
 
                   {/* Recent Tasks */}
                   {recentTasks.length > 0 && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.8 }}
-                      className="bg-white rounded-xl p-4 border border-gray-200"
+                      transition={{ duration: 0.5, delay: 0.7 }}
+                      className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm"
                     >
-                      <p className="text-sm font-semibold text-gray-900 mb-4">تسک‌های اخیر</p>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-bold text-gray-900">ماموریت‌های اخیر</h3>
+                        <span className="text-xs text-gray-500">{toPersianNumber(recentTasks.length)} مورد</span>
+                      </div>
                       <div className="space-y-3">
                         {recentTasks.map((task, index) => (
-                          <motion.div 
+                          <motion.div
                             key={task.id}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
-                            className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                            transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                            className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                           >
-                            <div className="w-10 h-10 bg-indigo-700/5 rounded-full flex items-center justify-center text-gray-700 shrink-0">
-                              <AiOutlineFileText className="w-5 h-5" />
+                            <div className="w-12 h-12 bg-[#C8E6C9] rounded-xl flex items-center justify-center text-[#359C67] shrink-0">
+                              <AiOutlineFileText className="w-6 h-6" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 mb-1 truncate">{task.title}</p>
+                              <p className="text-sm font-semibold text-gray-900 mb-2 truncate">{task.title}</p>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <p className="text-xs text-gray-500">{formatTime(task.date)}</p>
                                 {getTaskStatusBadge(task.status)}
                                 {task.points > 0 && (
-                                  <span className="text-xs text-yellow-700 bg-gradient-to-r from-yellow-50 to-yellow-100 px-2 py-0.5 rounded-full border border-yellow-200 flex items-center gap-1">
+                                  <span className="text-xs text-yellow-700 bg-gradient-to-r from-yellow-50 to-yellow-100 px-2 py-1 rounded-lg border border-yellow-200 flex items-center gap-1 font-semibold">
                                     <CurrencyDollarIcon className="w-3 h-3" />
-                                    {task.points} دیجیت
+                                    {toPersianNumber(task.points)} دیجیت
                                   </span>
                                 )}
                               </div>
@@ -817,58 +857,15 @@ function Home() {
             })}
           </div>
         ) : (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-center justify-center min-h-[60vh] py-16 px-4"
+            className="flex flex-col items-center justify-center pt-10 px-4"
           >
             {/* Main Icon Container with Gradient Background */}
-            <div className="relative mb-8">
-              {/* Decorative Circles */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-2xl opacity-60"></div>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full blur-xl opacity-50"></div>
-              </div>
-              
-              {/* Main Icon */}
-              <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 border border-blue-100">
-                <UserGroupIcon className="w-24 h-24 text-gray-400" />
-              </div>
-              
-              {/* Floating Icons */}
-              <motion.div
-                animate={{ 
-                  y: [0, -10, 0],
-                  rotate: [0, 5, 0]
-                }}
-                transition={{ 
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute -top-2 -right-2 bg-white rounded-full p-2 border border-gray-200"
-              >
-                <BsPeople className="w-6 h-6 text-blue-500" />
-              </motion.div>
-              
-              <motion.div
-                animate={{ 
-                  y: [0, -8, 0],
-                  rotate: [0, -5, 0]
-                }}
-                transition={{ 
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.5
-                }}
-                className="absolute -bottom-2 -left-2 bg-white rounded-full p-2 border border-gray-200"
-              >
-                <AiOutlineUserAdd className="w-6 h-6 text-purple-500" />
-              </motion.div>
+            <div className='w-full mb-4'>
+              <img src="/icon/Parent_add_child.gif" alt="" className='w-full' />
             </div>
 
             {/* Text Content */}
@@ -885,14 +882,14 @@ function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/children')}
-              className="flex items-center gap-2 bg-indigo-700 text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
+              onClick={() => setShowAddChildModal(true)}
+              className="flex items-center gap-2 bg-[#359C67] text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
             >
               <PlusCircleIcon className="w-6 h-6" />
               <span>افزودن فرزند</span>
             </motion.button>
 
-    
+
           </motion.div>
         )}
       </div>
@@ -911,6 +908,39 @@ function Home() {
         onClose={() => setShowRequestsModal(false)}
         child={selectedChild}
         requests={requests}
+        onApprove={handleApproveRequest}
+        onReject={handleRejectRequest}
+      />
+
+      {/* Add child modal */}
+      <AddChildModal
+        isOpen={showAddChildModal}
+        onClose={() => setShowAddChildModal(false)}
+        onAdd={(childData) => {
+          const now = Date.now();
+          const isOnline = Math.random() > 0.5;
+
+          const newChild: Child = {
+            id: Date.now().toString(),
+            ...childData,
+            password: '',
+            isOnline,
+            onlineSince: isOnline ? now : undefined,
+            lastOnlineTime: isOnline ? undefined : now - Math.random() * 24 * 60 * 60 * 1000,
+          };
+
+          const updatedChildren = [...children, newChild];
+          setChildren(updatedChildren);
+          localStorage.setItem('childrenList', JSON.stringify(updatedChildren));
+
+          // Load additional data for the new child
+          loadAdditionalData([newChild]);
+
+          // If this is the first child or second child, set as active
+          if (updatedChildren.length >= 2 && !activeChildId) {
+            setActiveChildId(newChild.id);
+          }
+        }}
       />
     </div>
   )

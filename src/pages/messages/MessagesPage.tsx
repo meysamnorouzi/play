@@ -9,6 +9,7 @@ import {
   UserIcon,
   HeartIcon,
 } from "@heroicons/react/24/outline";
+import { toPersianNumber } from "../../utils/numberUtils";
 
 interface Activity {
   id: string;
@@ -176,8 +177,8 @@ function MessagesPage() {
           childName,
           childAvatar: child.avatar,
           type: "task",
-          title: "تسک انجام شد",
-          message: 'تسک "خرید کتاب درسی" رو انجام دادم!',
+          title: "ماموریت انجام شد",
+          message: 'ماموریت "خرید کتاب درسی" رو انجام دادم!',
           timestamp: now - childIndex * 5 * 60 * 60 * 1000,
           isRead: true,
         });
@@ -215,14 +216,14 @@ function MessagesPage() {
       return "همین الان";
     }
     if (minutes < 60) {
-      return `${minutes} دقیقه پیش`;
+      return `${toPersianNumber(minutes)} دقیقه پیش`;
     }
     if (hours < 24) {
-      return `${hours} ساعت پیش`;
+      return `${toPersianNumber(hours)} ساعت پیش`;
     }
     const days = Math.floor(hours / 24);
     if (days === 1) return "دیروز";
-    if (days < 7) return `${days} روز پیش`;
+    if (days < 7) return `${toPersianNumber(days)} روز پیش`;
     return date.toLocaleDateString("fa-IR", { month: "long", day: "numeric" });
   };
 
@@ -342,9 +343,9 @@ function MessagesPage() {
           </motion.div>
 
           <div className="grid grid-cols-4 gap-3">
-            <div className=" h-20 border border-indigo-700 mb-3 flex items-center justify-center flex-col rounded-lg ">
-              <HeartIcon className="w-6 h-6 text-indigo-700" />
-              <p className="text-xs font-semibold mt-1 text-indigo-700">همه</p>
+            <div className=" h-20 border border-[#359C67] mb-3 flex items-center justify-center flex-col rounded-lg ">
+              <HeartIcon className="w-6 h-6 text-[#359C67]" />
+              <p className="text-xs font-semibold mt-1 text-[#359C67]">همه</p>
             </div>
             <div className=" h-20 border border-gray-200 mb-3 flex items-center justify-center flex-col rounded-lg ">
               <CheckCircleIcon className="w-6 h-6 text-black" />
@@ -418,7 +419,7 @@ function MessagesPage() {
                               {activity.childName}
                             </h3>
                             {!activity.isRead && (
-                              <span className="w-2 h-2 bg-indigo-700 rounded-full"></span>
+                              <span className="w-2 h-2 bg-[#359C67] rounded-full"></span>
                             )}
                           </div>
                           <p className="text-sm font-semibold text-gray-900 mb-1">

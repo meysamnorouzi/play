@@ -15,13 +15,14 @@ import ProtectedRoute from './ProtectedRoute'
 import MainLayout from '../components/MainLayout'
 import Transactions from '../pages/transactions/TransactionsPage'
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: (
-      <App />
-    ),
-    children: [
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      children: [
       {
         element: <ProtectedRoute />,
         children: [
@@ -81,7 +82,9 @@ export const router = createBrowserRouter([
         element: <RegisterPage />,
       },
     ],
-  },
-])
+    },
+  ],
+  { basename }
+)
 
 

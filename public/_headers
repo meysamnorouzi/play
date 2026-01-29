@@ -1,0 +1,19 @@
+# Netlify/Vercel headers file (alternative to .htaccess)
+/assets/*
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Content-Type: application/javascript
+
+/*.mjs
+  Content-Type: application/javascript
+
+/*.css
+  Content-Type: text/css
+
+/*.json
+  Content-Type: application/json
+
+/*.webmanifest
+  Content-Type: application/manifest+json

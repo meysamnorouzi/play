@@ -10,31 +10,17 @@ import {
   MdFamilyRestroom,
   MdOutlineSupportAgent,
 } from "react-icons/md";
+import { toPersianNumber } from "../../utils/numberUtils";
 
 function CategoriesPage() {
   return (
     <div className="bg-white min-h-screen  py-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-3 px-4"
-      >
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">
-            به آکادمی دیجی پلی خوش آمدید
-          </h1>
-        </div>
-        <p className="text-gray-600 text-sm">
-          محتوای آموزشی و دوره‌های یادگیری برای شما و فرزندانتان
-        </p>
-      </motion.div>
 
-      <div className="grid grid-cols-4 px-4 gap-3">
-        <div className=" h-12 border border-indigo-700 mb-3 gap-2 flex items-center justify-center rounded-lg ">
-          <HeartIcon className="w-6 h-6 text-indigo-700" />
-          <p className="text-xs font-semibold mt-1 text-indigo-700">همه</p>
+  <div className="bg-white sticky top-0 py-2">
+  <div className="grid grid-cols-4 px-4 gap-3">
+        <div className=" h-12 border border-[#359C67] mb-3 gap-2 flex items-center justify-center rounded-lg ">
+          <HeartIcon className="w-6 h-6 text-[#359C67]" />
+          <p className="text-xs font-semibold mt-1 text-[#359C67]">همه</p>
         </div>
         <div className=" h-12 border border-black mb-3 flex gap-2 items-center justify-center rounded-lg ">
           <MdOutlineSupportAgent className="w-6 h-6 text-black" />
@@ -67,21 +53,22 @@ function CategoriesPage() {
         </div>
       </motion.div>
 
+  </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="mb-5"
+        className="mb-8 pb-8 border-b border-gray-400"
       >
         <div className="flex flex-col gap-2">
           <div className="flex gap-2 items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <UserCircleIcon className="border-2 border-black  w-9 h-9 text-gray-400 rounded-full" />
               <p className=" text-black">مهسا نوروزی لواسانی</p>
-              <p className="text-xs text-white px-2 bg-indigo-700 py-1 rounded-full">آموزشی</p>
+              <p className="text-xs text-white px-2 bg-[#359C67] py-1 rounded-full">آموزشی</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">3 ساعت پیش</p>
+              <p className="text-sm text-gray-400">{toPersianNumber(3)} ساعت پیش</p>
             </div>
           </div>
           <div className="h-96 w-full">
@@ -103,10 +90,10 @@ function CategoriesPage() {
               </div>
             </div>
             <div className="flex items-center justify-between w-full mt-1">
-              <p className="text-xs">
-                سلام امیدوارم خوب باشید یه دیجی پلی خوش آمدید ...{" "}
-              </p>
-              <p className="text-xs text-indigo-700 font-semibold">
+              {/* <p className="text-xs">
+                سلام امیدوارم خوب باشید یه دیجی پرنت خوش آمدید ...{" "}
+              </p> */}
+              <p className="text-xs text-[#359C67] font-semibold">
                 {" "}
                 نمایش بیشتر{" "}
               </p>
@@ -119,17 +106,17 @@ function CategoriesPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="mb-5"
+        className="mb-8 pb-8 border-b border-gray-400"
       >
         <div className="flex flex-col gap-2">
           <div className="flex gap-2 items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <UserCircleIcon className="border-2 border-black  w-9 h-9 text-gray-400 rounded-full" />
               <p className=" text-black">محمد مهرابی  </p>
-              <p className="text-xs text-white px-2 bg-indigo-700 py-1 rounded-full">سرگرمی</p>
+              <p className="text-xs text-white px-2 bg-[#359C67] py-1 rounded-full">سرگرمی</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">3 ساعت پیش</p>
+              <p className="text-sm text-gray-400">{toPersianNumber(3)} ساعت پیش</p>
             </div>
           </div>
 
@@ -153,10 +140,10 @@ function CategoriesPage() {
               </div>
             </div>
             <div className="flex items-center justify-between w-full mt-2">
-              <p className="text-xs">
-                سلام امیدوارم خوب باشید یه دیجی پلی خوش آمدید ...
-              </p>
-              <p className="text-xs text-indigo-700 font-semibold">
+              {/* <p className="text-xs">
+                سلام امیدوارم خوب باشید یه دیجی پرنت خوش آمدید ...
+              </p> */}
+              <p className="text-xs text-[#359C67] font-semibold">
                 نمایش بیشتر
               </p>
             </div>
@@ -168,18 +155,18 @@ function CategoriesPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="mb-5"
+        className="mb-8 pb-8 border-b border-gray-400"
       >
         <div className="flex flex-col gap-2">
           <div className="flex gap-2 items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <UserCircleIcon className="border-2 border-black  w-9 h-9 text-gray-400 rounded-full" />
               <p className=" text-black">  فاطمه مهرابی</p>
-              <p className="text-xs text-white px-2 bg-indigo-700 py-1 rounded-full">مشاوره</p>
-              <p className="text-xs text-white px-2 bg-indigo-700 py-1 rounded-full">فرزندان</p>
+              <p className="text-xs text-white px-2 bg-[#359C67] py-1 rounded-full">مشاوره</p>
+              <p className="text-xs text-white px-2 bg-[#359C67] py-1 rounded-full">فرزندان</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">3 ساعت پیش</p>
+              <p className="text-sm text-gray-400">{toPersianNumber(3)} ساعت پیش</p>
             </div>
           </div>
           <div className="h-96 w-full">
@@ -201,10 +188,10 @@ function CategoriesPage() {
               </div>
             </div>
             <div className="flex items-center justify-between w-full mt-1">
-              <p className="text-xs">
-                سلام امیدوارم خوب باشید یه دیجی پلی خوش آمدید ...{" "}
-              </p>
-              <p className="text-xs text-indigo-700 font-semibold">
+              {/* <p className="text-xs">
+                سلام امیدوارم خوب باشید یه دیجی پرنت خوش آمدید ...{" "}
+              </p> */}
+              <p className="text-xs text-[#359C67] font-semibold">
                 {" "}
                 نمایش بیشتر{" "}
               </p>

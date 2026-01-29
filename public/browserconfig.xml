@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square70x70logo src="/icon/parent-logo.svg"/>
+            <square150x150logo src="/icon/parent-logo.svg"/>
+            <wide310x150logo src="/icon/parent-logo.svg"/>
+            <square310x310logo src="/icon/parent-logo.svg"/>
+            <TileColor>#237147</TileColor>
+        </tile>
+    </msapplication>
+</browserconfig>

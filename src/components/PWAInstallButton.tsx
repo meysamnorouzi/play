@@ -2,8 +2,8 @@ import { usePWAInstall } from '../hooks/usePWAInstall'
 import { useState, useEffect } from 'react'
 
 function PWAInstallButton() {
-  const { isInstallable, isInstalled, promptInstall } = usePWAInstall()
-  const [showButton, setShowButton] = useState(false)
+  const { isInstallable, isInstalled } = usePWAInstall()
+  const [_showButton, setShowButton] = useState(false)
 
   useEffect(() => {
     // Show button if installable and not already installed
@@ -18,6 +18,9 @@ function PWAInstallButton() {
     }
   }, [isInstallable, isInstalled])
 
+  // Temporarily commented out - uncomment when re-enabling the component
+  /*
+  const { promptInstall } = usePWAInstall()
   const handleInstall = async () => {
     const installed = await promptInstall()
     if (installed) {
@@ -33,7 +36,12 @@ function PWAInstallButton() {
       localStorage.removeItem('pwa-install-dismissed')
     }, 7 * 24 * 60 * 60 * 1000)
   }
+  */
 
+  // Temporarily hidden - uncomment below to re-enable
+  return null
+
+  /* 
   if (!showButton) return null
 
   return (
@@ -58,7 +66,7 @@ function PWAInstallButton() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-gray-900">نصب اپلیکیشن</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              Digi Play را روی دستگاه خود نصب کنید
+              Digi Parent را روی دستگاه خود نصب کنید
             </p>
           </div>
         </div>
@@ -92,6 +100,7 @@ function PWAInstallButton() {
       </div>
     </div>
   )
+  */
 }
 
 export default PWAInstallButton

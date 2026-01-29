@@ -5,7 +5,6 @@ import {
   ShoppingCartIcon, 
   PencilSquareIcon, 
   Cog6ToothIcon, 
-  GiftIcon, 
   HeartIcon, 
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
@@ -51,7 +50,7 @@ function ProfilePage() {
   const username = user?.phone ? `@${user.phone.substring(0, 4)}****` : '@user'
 
   // User profile image
-  const userAvatar = user?.avatar || '/avatar/a3efb9801a4b75deacd1d69995b3615a.jpg'
+  const userAvatar = user?.avatar || '/image/avatars/piri.svg'
 
   // Get selected slide
   const selectedSlide = slides[selectedSlideIndex]
@@ -66,9 +65,8 @@ function ProfilePage() {
 
   const menuItems = [
     { icon: Cog6ToothIcon, label: 'تنظیمات حساب', color: 'text-gray-700', onClick: () => {} },
-    { icon: ShoppingCartIcon, label: 'سفارشات من', color: 'text-gray-700', badge: '3', onClick: () => {} },
+    { icon: ShoppingCartIcon, label: 'سفارشات', color: 'text-gray-700', badge: '3', onClick: () => {} },
     { icon: HeartIcon, label: 'علاقه‌مندی‌ها', color: 'text-gray-700', onClick: () => {} },
-    { icon: GiftIcon, label: 'جوایز و امتیازات', color: 'text-gray-700', onClick: () => {} },
     { icon: ArrowRightOnRectangleIcon, label: 'خروج از حساب', color: 'text-gray-700', onClick: handleLogout },
   ]
 
@@ -120,7 +118,7 @@ function ProfilePage() {
           {/* Action Button */}
           <button 
             onClick={() => setShowEditModal(true)}
-            className="bg-indigo-700 text-white px-8 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 mx-auto"
+            className="bg-[#359C67] text-white px-8 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 mx-auto"
           >
             <PencilSquareIcon className="w-5 h-5" />
             ویرایش پروفایل

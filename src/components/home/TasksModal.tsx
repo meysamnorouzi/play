@@ -1,5 +1,6 @@
 import { AiOutlineClose, AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineFileText } from 'react-icons/ai'
 import { CurrencyDollarIcon } from '@heroicons/react/24/outline'
+import { toPersianNumber } from '../../utils/numberUtils'
 
 interface Child {
   id: string;
@@ -53,12 +54,12 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
       
       {/* Bottom Sheet - constrained to mobile width */}
       <div
-        className="fixed bottom-0 w-full max-w-[430px] bg-white rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl"
+        className="fixed bottom-0 w-full max-w-[430px] bg-white rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl z-50"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-16 h-1.5 bg-indigo-700/20 rounded-full"></div>
+          <div className="w-16 h-1.5 bg-[#359C67]/20 rounded-full"></div>
         </div>
 
         {/* Header */}
@@ -66,9 +67,9 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-gray-900">
-                تسک‌های {child.firstName} {child.lastName}
+                ماموریت‌های {child.firstName} {child.lastName}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">{tasks.length} تسک</p>
+              <p className="text-sm text-gray-500 mt-1">{toPersianNumber(tasks.length)} ماموریت</p>
             </div>
             <button
               onClick={onClose}
@@ -102,13 +103,13 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                       </div>
                       <p className="text-sm text-gray-600 mb-3 leading-relaxed">{task.description}</p>
                       <div className="flex items-center gap-3 text-xs flex-wrap">
-                        <span className="bg-indigo-700 text-white px-3 py-1 rounded-full font-medium">
+                        <span className="bg-[#359C67] text-white px-3 py-1 rounded-full font-medium">
                           {task.category}
                         </span>
                         <span className="text-gray-500">{formatDate(task.date)}</span>
                         <span className="bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium border border-yellow-200 flex items-center gap-1">
                           <CurrencyDollarIcon className="w-3 h-3" />
-                          {task.points || 0} دیجیت
+                          {toPersianNumber(task.points || 0)} دیجیت
                         </span>
                       </div>
                     </div>
@@ -117,7 +118,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                         ? 'bg-green-50 text-green-700 border border-green-200' 
                         : task.status === 'in-progress'
                         ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : 'bg-indigo-700 text-white'
+                        : 'bg-[#359C67] text-white'
                     }`}>
                       {task.status === 'completed' ? 'انجام شده' : 
                        task.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}
@@ -131,7 +132,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
               <div className="w-20 h-20 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
                 <AiOutlineFileText className="w-10 h-10 text-gray-400" />
               </div>
-              <p className="text-gray-600 text-base font-medium">هیچ تسکی در انتظار نیست</p>
+              <p className="text-gray-600 text-base font-medium">هیچ ماموریتی در انتظار نیست</p>
             </div>
           )}
         </div>

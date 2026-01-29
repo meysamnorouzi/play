@@ -1,7 +1,15 @@
-import { useSWUpdate } from '../hooks/useSWUpdate'
-import { useState, useEffect } from 'react'
+// Temporarily commented out - uncomment when re-enabling the component
+// import { useSWUpdate } from '../hooks/useSWUpdate'
+// import { useState, useEffect } from 'react'
 
 function SWUpdateNotification() {
+  // Temporarily hidden - uncomment below to re-enable
+  return null
+
+  /* 
+  import { useSWUpdate } from '../hooks/useSWUpdate'
+  import { useState, useEffect } from 'react'
+  
   const { needRefresh, offlineReady, updateServiceWorker } = useSWUpdate()
   const [showOfflineReady, setShowOfflineReady] = useState(false)
 
@@ -114,6 +122,7 @@ function SWUpdateNotification() {
   }
 
   return null
+  */
 }
 
 export default SWUpdateNotification

@@ -13,14 +13,14 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    title: 'به دیجی پلی خوش آمدید',
+    title: '',
     description: 'با استفاده از این اپلیکیشن می‌توانید به راحتی به تمام امکانات دسترسی داشته باشید',
     bgColor: '#e98c20',
     textColor: '#ffffff',
     icon: (
       <img 
         src="/image/4d66b4808ba10406f9def8a711dcff23.gif" 
-        alt="خوش آمدید" 
+        alt="" 
         className="w-80 h-80 object-contain"
       />
     ),

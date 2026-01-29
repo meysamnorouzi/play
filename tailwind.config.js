@@ -297,7 +297,26 @@ export default {
           600: '#0B0C10',
           black: '#000000',
           clarity: 'rgba(24, 25, 31, 0.50)'
+        },
+        indigo: {
+          50: '#E8F5E9',
+          100: '#C8E6C9',
+          200: '#A5D6A7',
+          300: '#81C784',
+          400: '#66BB6A',
+          500: '#4CAF50',
+          600: '#359C67',
+          700: '#359C67',
+          800: '#2E7D5A',
+          900: '#1B5E4D'
+        },
+        theme: {
+          green: '#237147'
         }
+      },
+      backgroundImage: {
+        'gradient-desktop': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'gradient-theme': 'linear-gradient(135deg, #237147 0%, #1a5235 100%)'
       },
       boxShadow: {
         card: 'var(--tw-card-box-shadow)',
