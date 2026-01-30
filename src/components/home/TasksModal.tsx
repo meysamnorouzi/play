@@ -51,7 +51,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
         onClick={onClose}
         className="fixed inset-0 bg-[#00000029] z-50"
       />
-      
+
       {/* Bottom Sheet - constrained to mobile width */}
       <div
         className="fixed bottom-0 w-full max-w-[430px] bg-white rounded-t-2xl max-h-[90vh] flex flex-col shadow-2xl z-50"
@@ -102,28 +102,29 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                         <h4 className="font-semibold text-gray-900 text-base">{task.title}</h4>
                       </div>
                       <p className="text-sm text-gray-600 mb-3 leading-relaxed">{task.description}</p>
-                      <div className="flex items-center gap-3 text-xs flex-wrap">
-                        <span className="bg-[#359C67] text-white px-3 py-1 rounded-full font-medium">
-                          {task.category}
-                        </span>
-                        <span className="text-gray-500">{formatDate(task.date)}</span>
-                        <span className="bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium border border-yellow-200 flex items-center gap-1">
-                          <CurrencyDollarIcon className="w-3 h-3" />
-                          {toPersianNumber(task.points || 0)} دیجیت
-                        </span>
-                      </div>
                     </div>
-                    <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${
-                      task.status === 'completed' 
-                        ? 'bg-green-50 text-green-700 border border-green-200' 
+                    <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${task.status === 'completed'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
                         : task.status === 'in-progress'
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : 'bg-[#359C67] text-white'
-                    }`}>
-                      {task.status === 'completed' ? 'انجام شده' : 
-                       task.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-[#359C67] text-white'
+                      }`}>
+                      {task.status === 'completed' ? 'انجام شده' :
+                        task.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}
                     </div>
                   </div>
+                  <div className='flex items-center justify-between w-full'>
+                        <div className="flex items-center gap-3 text-xs flex-wrap">
+                          <span className="bg-[#359C67] text-white px-3 py-1 rounded-full font-medium">
+                            {task.category}
+                          </span>
+                          <span className="bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium border border-yellow-200 flex items-center gap-1">
+                            <CurrencyDollarIcon className="w-3 h-3" />
+                            {toPersianNumber(task.points || 0)} دیجیت
+                          </span>
+                        </div>
+                        <span className="text-gray-500 text-xs">{formatDate(task.date)}</span>
+                      </div>
                 </div>
               ))}
             </div>

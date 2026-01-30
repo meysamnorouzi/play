@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { CheckIcon } from '@heroicons/react/24/outline';
 import Modal from '../Modal';
 import DatePicker from '../DatePicker';
+import { Input } from '../ui';
 
 // List of available avatars (from /image/avatars/) - used for default assignment
 const AVATARS = [
@@ -119,82 +119,51 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
       maxHeight="90vh"
     >
       <div className="space-y-6" dir="rtl">
-        {/* First name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            نام
-          </label>
-          <input
-            type="text"
-            value={formData.firstName}
-            onChange={(e) => handleInputChange('firstName', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all ${
-              errors.firstName ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="نام فرزند را وارد کنید"
-          />
-          {errors.firstName && (
-            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-          )}
-        </div>
+        {/* First name - placeholder only, no label */}
+        <Input
+          type="text"
+          value={formData.firstName}
+          onChange={(e) => handleInputChange('firstName', e.target.value)}
+          placeholder="نام فرزند را وارد کنید"
+          error={errors.firstName}
+          dir="rtl"
+        />
 
         {/* Last name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            نام خانوادگی
-          </label>
-          <input
-            type="text"
-            value={formData.lastName}
-            onChange={(e) => handleInputChange('lastName', e.target.value)}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all ${
-              errors.lastName ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="نام خانوادگی فرزند را وارد کنید"
-          />
-          {errors.lastName && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-          )}
-        </div>
+        <Input
+          type="text"
+          value={formData.lastName}
+          onChange={(e) => handleInputChange('lastName', e.target.value)}
+          placeholder="نام خانوادگی فرزند را وارد کنید"
+          error={errors.lastName}
+          dir="rtl"
+        />
 
         {/* National ID */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            کد ملی
-          </label>
-          <input
-            type="text"
-            value={formData.nationalId}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, ''); // Only numbers
-              if (value.length <= 10) {
-                handleInputChange('nationalId', value);
-              }
-            }}
-            className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all ${
-              errors.nationalId ? 'border-red-300' : 'border-gray-300'
-            }`}
-            placeholder="کد ملی 10 رقمی"
-            maxLength={10}
-            dir="ltr"
-          />
-          {errors.nationalId && (
-            <p className="text-red-500 text-sm mt-1">{errors.nationalId}</p>
-          )}
-        </div>
+        <Input
+          type="text"
+          value={formData.nationalId}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 10) handleInputChange('nationalId', value);
+          }}
+          placeholder="کد ملی 10 رقمی"
+          error={errors.nationalId}
+          dir="ltr"
+          maxLength={10}
+        />
 
-        {/* Birth date */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            تاریخ تولد
-          </label>
+        {/* Birth date - separate DatePicker, placeholder only */}
+        <div className="space-y-1">
           <DatePicker
             value={formData.birthDate}
             onChange={(date) => handleInputChange('birthDate', date)}
             placeholder="تاریخ تولد را انتخاب کنید"
           />
           {errors.birthDate && (
-            <p className="text-red-500 text-sm mt-1">{errors.birthDate}</p>
+            <p className="text-red-500 text-sm mt-1" role="alert">
+              {errors.birthDate}
+            </p>
           )}
         </div>
 
@@ -210,7 +179,6 @@ function AddChildModal({ isOpen, onClose, onAdd }: AddChildModalProps) {
             onClick={handleSubmit}
             className="flex-1 bg-[#359C67] text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
           >
-            <CheckIcon className="w-5 h-5" />
             افزودن فرزند
           </button>
         </div>

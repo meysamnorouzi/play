@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/auth/AuthLayout';
+import { Input } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 // Commented out API imports - using local auth instead
 // import { requestOTP, login } from '../../services/authService';
@@ -158,30 +159,20 @@ const LoginPage = () => {
     >
       {step === 'phone' ? (
         <form className="space-y-6" onSubmit={handlePhoneSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-          <div className="space-y-2">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              شماره موبایل
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                setError('');
-              }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-2 focus:ring-gray-300 outline-none transition-all text-left"
-              placeholder="09123456789"
-              dir="ltr"
-              disabled={loading}
-              required
-            />
-          </div>
+          <Input
+            type="tel"
+            id="phone"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              setError('');
+            }}
+            placeholder="09123456789"
+            error={error}
+            dir="ltr"
+            disabled={loading}
+            required
+          />
           <button
             type="submit"
             disabled={loading}
@@ -192,31 +183,22 @@ const LoginPage = () => {
         </form>
       ) : (
         <form className="space-y-6" onSubmit={handleOtpSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-          <div className="space-y-2">
-            <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-              کد تایید
-            </label>
-            <input
-              type="text"
-              id="otp"
-              value={otp}
-              onChange={(e) => {
-                setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
-                setError('');
-              }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-2 focus:ring-gray-300 outline-none transition-all text-center tracking-widest text-lg"
-              placeholder="------"
-              dir="ltr"
-              maxLength={6}
-              disabled={loading}
-              required
-            />
-          </div>
+          <Input
+            type="text"
+            id="otp"
+            value={otp}
+            onChange={(e) => {
+              setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+              setError('');
+            }}
+            placeholder="------"
+            error={error}
+            dir="ltr"
+            maxLength={6}
+            disabled={loading}
+            required
+            inputClassName="text-center tracking-widest text-lg"
+          />
           <button
             type="submit"
             disabled={loading}

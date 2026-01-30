@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { CheckIcon } from '@heroicons/react/24/outline'
 import Modal from '../Modal'
 import DatePicker from '../DatePicker'
+import { Input } from '../ui'
 import { useAuth } from '../../context/AuthContext'
 
 interface EditProfileModalProps {
@@ -79,26 +79,28 @@ function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             انتخاب تصویر پروفایل
           </label>
           
-          {/* Avatar grid */}
-          <div className="grid grid-cols-6 gap-3">
-            {AVATARS.map((avatar, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => handleInputChange('avatar', avatar)}
-                className={`relative w-full aspect-square rounded-full overflow-hidden transition-all transform hover:scale-105 ${
-                  editForm.avatar === avatar 
-                    ? 'ring-4 ring-gray-900 ring-offset-2' 
-                    : 'ring-2 ring-gray-200 hover:ring-gray-400'
-                }`}
-              >
-                <img 
-                  src={avatar} 
-                  alt={`Avatar ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
+          {/* Avatar grid - 2 rows, horizontal scroll */}
+          <div className="overflow-x-auto overflow-y-hidden p-2">
+            <div className="grid grid-flow-col grid-rows-2 auto-cols-[52px] gap-3 w-max">
+              {AVATARS.map((avatar, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleInputChange('avatar', avatar)}
+                  className={`relative w-12 h-12 rounded-full overflow-hidden transition-all transform hover:scale-105 flex-shrink-0 ${
+                    editForm.avatar === avatar 
+                      ? 'ring-4 ring-gray-900 ring-offset-2' 
+                      : 'ring-2 ring-gray-200 hover:ring-gray-400'
+                  }`}
+                >
+                  <img 
+                    src={avatar} 
+                    alt={`Avatar ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -106,69 +108,44 @@ function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
         <div className="border-t border-gray-200"></div>
 
         {/* First name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            نام
-          </label>
-          <input
-            type="text"
-            value={editForm.firstName}
-            onChange={(e) => handleInputChange('firstName', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-            placeholder="نام خود را وارد کنید"
-          />
-        </div>
+        <Input
+          type="text"
+          value={editForm.firstName}
+          onChange={(e) => handleInputChange('firstName', e.target.value)}
+          placeholder="نام خود را وارد کنید"
+          dir="rtl"
+        />
 
         {/* Last name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            نام خانوادگی
-          </label>
-          <input
-            type="text"
-            value={editForm.lastName}
-            onChange={(e) => handleInputChange('lastName', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-            placeholder="نام خانوادگی خود را وارد کنید"
-          />
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            ایمیل
-          </label>
-          <input
-            type="email"
-            value={editForm.email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-            placeholder="example@email.com"
-            dir="ltr"
-          />
-        </div>
+        <Input
+          type="text"
+          value={editForm.lastName}
+          onChange={(e) => handleInputChange('lastName', e.target.value)}
+          placeholder="نام خانوادگی خود را وارد کنید"
+          dir="rtl"
+        />
 
         {/* National ID */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            کد ملی
-          </label>
-          <input
-            type="text"
-            value={editForm.nationalId}
-            onChange={(e) => handleInputChange('nationalId', e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all"
-            placeholder="کد ملی 10 رقمی"
-            maxLength={10}
-            dir="ltr"
-          />
-        </div>
+        <Input
+          type="text"
+          value={editForm.nationalId}
+          onChange={(e) => handleInputChange('nationalId', e.target.value)}
+          placeholder="کد ملی 10 رقمی"
+          dir="ltr"
+          maxLength={10}
+        />
+
+        {/* Email */}
+        <Input
+          type="email"
+          value={editForm.email}
+          onChange={(e) => handleInputChange('email', e.target.value)}
+          placeholder="example@email.com"
+          dir="ltr"
+        />
 
         {/* Birth date */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            تاریخ تولد
-          </label>
+        <div className="space-y-1">
           <DatePicker
             value={editForm.birthDate}
             onChange={(date) => handleInputChange('birthDate', date)}
@@ -177,16 +154,14 @@ function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
         </div>
 
         {/* Phone number (non-editable) */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            شماره تلفن
-          </label>
-          <input
-            type="text"
+        <div className="space-y-1">
+          <Input
+            type="tel"
             value={user?.phone || ''}
-            disabled
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
+            onChange={() => {}}
+            placeholder="شماره تلفن"
             dir="ltr"
+            disabled
           />
           <p className="text-xs text-gray-500 mt-1">
             شماره تلفن قابل ویرایش نیست
@@ -205,7 +180,6 @@ function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             onClick={handleSaveProfile}
             className="flex-1 bg-[#359C67] text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
           >
-            <CheckIcon className="w-5 h-5" />
             ذخیره تغییرات
           </button>
         </div>

@@ -3,16 +3,14 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import {
   WalletIcon,
-  ArrowDownTrayIcon,
   ChartBarIcon,
   ArrowTrendingDownIcon,
-  ArrowsRightLeftIcon,
   CheckIcon,
-  CurrencyDollarIcon,
   ArrowLeftIcon,
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import Modal from "../../components/Modal";
+import { Input } from "../../components/ui";
 import { toPersianNumber } from "../../utils/numberUtils";
 import {
   AiOutlineWallet,
@@ -658,7 +656,6 @@ function WalletPage() {
               onClick={() => setShowTransferModal(true)}
               className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-[#359C67] text-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-semibold transition-all"
             >
-              <ArrowsRightLeftIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>انتقال</span>
             </motion.button>
             <motion.button
@@ -667,7 +664,6 @@ function WalletPage() {
               onClick={() => setShowDepositModal(true)}
               className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-[#359C67] text-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-semibold transition-all"
             >
-              <ArrowDownTrayIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               <span>افزایش موجودی</span>
             </motion.button>
           </div>
@@ -853,24 +849,15 @@ function WalletPage() {
         maxHeight="90vh"
       >
         <div className="space-y-6">
-          <div className="space-y-3">
-            <label
-              htmlFor="depositAmount"
-              className="block text-base font-semibold text-gray-700"
-            >
-              مبلغ واریز (تومان)
-            </label>
-            <input
-              type="number"
-              id="depositAmount"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-              className="w-full px-5 py-4 text-base rounded-xl border border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-300 outline-none transition-all"
-              placeholder="مثال: 1000000"
-              dir="ltr"
-              min="1"
-            />
-          </div>
+          <Input
+            type="number"
+            id="depositAmount"
+            value={depositAmount}
+            onChange={(e) => setDepositAmount(e.target.value)}
+            placeholder="مثال: 1000000"
+            dir="ltr"
+            min={1}
+          />
 
           <motion.button
             whileTap={{ scale: 0.98 }}
@@ -901,7 +888,6 @@ function WalletPage() {
             disabled={!depositAmount || parseFloat(depositAmount) <= 0}
             className="w-full bg-[#359C67] text-white py-4 sm:py-5 rounded-xl font-bold text-lg sm:text-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
-            <CheckIcon className="w-6 h-6 sm:w-7 sm:h-7" />
             <span>افزایش موجودی</span>
           </motion.button>
         </div>
@@ -973,21 +959,14 @@ function WalletPage() {
               </motion.div>
 
               <div className="space-y-3">
-                <label
-                  htmlFor="chargeAmount"
-                  className="block text-base font-semibold text-gray-700"
-                >
-                  مبلغ شارژ ({isDigitMode ? "دیجیت" : "تومان"})
-                </label>
-                <input
+                <Input
                   type="number"
                   id="chargeAmount"
                   value={chargeAmount}
                   onChange={(e) => setChargeAmount(e.target.value)}
-                  className="w-full px-5 py-4 text-base rounded-xl border border-gray-200 focus:border-gray-900 focus:ring-2 focus:ring-gray-300 outline-none transition-all"
                   placeholder={isDigitMode ? "مثال: 500" : "مثال: 1000000"}
                   dir="ltr"
-                  min="1"
+                  min={1}
                 />
                 <p className="text-sm text-gray-500">
                   حداقل مبلغ:{" "}
@@ -1085,60 +1064,30 @@ function WalletPage() {
                 </div>
               </div>
 
-              {/* Toggle Switch - Enhanced Design */}
-              <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200 shadow-sm">
-                <div className="flex items-center justify-between">
-                  {/* Digit Mode */}
-                  <motion.div
-                    className={`flex items-center gap-3 justify-end transition-all duration-300 ${
-                      isDigitMode ? 'opacity-100' : 'opacity-50'
+              {/* Toggle: انتقال دیجیت */}
+              <div className="flex items-center gap-2 py-2">
+                <span className={`text-sm font-medium ${isDigitMode ? 'text-gray-900' : 'text-gray-500'}`}>
+                  انتقال دیجیت
+                </span>
+                <button
+                  onClick={() => {
+                    setIsDigitMode(!isDigitMode);
+                    setTransferAmount("");
+                    setDigitAmount("");
+                  }}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#359C67] focus:ring-offset-2 ${
+                    isDigitMode ? 'bg-[#359C67]' : 'bg-gray-300'
+                  }`}
+                  type="button"
+                  role="switch"
+                  aria-checked={isDigitMode}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                      isDigitMode ? 'translate-x-[-22px]' : 'translate-x-[-2px]'
                     }`}
-                    animate={{
-                      scale: isDigitMode ? 1.05 : 1,
-                    }}
-                  >
-                                        <div className={`p-3 rounded-xl transition-all duration-300 ${
-                      isDigitMode ? 'bg-[#359C67] text-white shadow-md' : 'bg-white text-gray-600'
-                    }`}>
-                      <CurrencyDollarIcon className="w-6 h-6" />
-                    </div>
-                    <div className="text-left">
-                      <p className={`text-sm font-bold transition-colors ${
-                        isDigitMode ? 'text-gray-900' : 'text-gray-500'
-                      }`}>
-                        انتقال دیجیت
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">به صورت دیجیت</p>
-                    </div>
-                  </motion.div>
-
-                  {/* Toggle Button */}
-                  <button
-                    onClick={() => {
-                      setIsDigitMode(!isDigitMode);
-                      setTransferAmount("");
-                      setDigitAmount("");
-                    }}
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#359C67] focus:ring-offset-2 shadow-inner ${
-                      isDigitMode ? 'bg-[#359C67]' : 'bg-gray-300'
-                    }`}
-                    type="button"
-                    role="switch"
-                    aria-checked={isDigitMode}
-                  >
-                    <motion.span
-                      className="inline-block h-6 w-6 rounded-full bg-white shadow-lg"
-                      animate={{
-                        x: isDigitMode ? -28 : -2,
-                      }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 30,
-                      }}
-                    />
-                  </button>
-                </div>
+                  />
+                </button>
               </div>
 
               {/* Money Input */}
@@ -1149,26 +1098,16 @@ function WalletPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-4"
                 >
-                  <div>
-                    <label
-                      htmlFor="transferAmount"
-                      className="block text-base font-bold text-gray-900 mb-2"
-                    >
-                      مبلغ انتقال (تومان)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        id="transferAmount"
-                        value={transferAmount}
-                        onChange={(e) => setTransferAmount(e.target.value)}
-                        className="w-full px-5 py-4 pr-12 text-lg rounded-xl border-2 border-gray-200 focus:border-[#359C67] focus:ring-2 focus:ring-[#359C67]/20 outline-none transition-all bg-white shadow-sm"
-                        placeholder="0"
-                        dir="ltr"
-                        min="1"
-                      />
-                    </div>
-                  </div>
+                  <Input
+                    type="number"
+                    id="transferAmount"
+                    value={transferAmount}
+                    onChange={(e) => setTransferAmount(e.target.value)}
+                    placeholder="0"
+                    dir="ltr"
+                    min={1}
+                    inputClassName="text-lg border-2 focus:border-[#359C67] focus:ring-[#359C67]/20"
+                  />
                   <div className="bg-gradient-to-r from-[#359C67]/10 to-[#359C67]/5 rounded-xl p-4 border border-[#359C67]/20">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600 font-medium">موجودی شما:</span>
@@ -1188,36 +1127,25 @@ function WalletPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-4"
                 >
-                  <div>
-                    <label
-                      htmlFor="digitAmount"
-                      className="block text-base font-bold text-gray-900 mb-2"
-                    >
-                      تعداد دیجیت
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        id="digitAmount"
-                        value={digitAmount}
-                        onChange={(e) => {
-                          const digits = e.target.value;
-                          setDigitAmount(digits);
-                          // Calculate money from digits: هر 100 دیجیت = 25000 تومان
-                          if (digits) {
-                            const calculatedMoney = calculateMoneyFromDigits(parseFloat(digits));
-                            setTransferAmount(calculatedMoney.toString());
-                          } else {
-                            setTransferAmount("");
-                          }
-                        }}
-                        className="w-full px-5 py-4 pr-16 text-lg rounded-xl border-2 border-gray-200 focus:border-[#359C67] focus:ring-2 focus:ring-[#359C67]/20 outline-none transition-all bg-white shadow-sm"
-                        placeholder="0"
-                        dir="ltr"
-                        min="1"
-                      />
-                    </div>
-                  </div>
+                  <Input
+                    type="number"
+                    id="digitAmount"
+                    value={digitAmount}
+                    onChange={(e) => {
+                      const digits = e.target.value;
+                      setDigitAmount(digits);
+                      if (digits) {
+                        const calculatedMoney = calculateMoneyFromDigits(parseFloat(digits));
+                        setTransferAmount(calculatedMoney.toString());
+                      } else {
+                        setTransferAmount("");
+                      }
+                    }}
+                    placeholder="0"
+                    dir="ltr"
+                    min={1}
+                    inputClassName="text-lg border-2 focus:border-[#359C67] focus:ring-[#359C67]/20"
+                  />
                   
                   {digitAmount && parseFloat(digitAmount) > 0 && (
                     <motion.div
@@ -1252,22 +1180,6 @@ function WalletPage() {
               )}
 
               <div className="flex gap-3 pt-2">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setShowTransferModal(false);
-                    setTransferAmount("");
-                    setDigitAmount("");
-                    setSelectedChildId("");
-                    setIsDigitMode(false);
-                    setInsufficientBalance(false);
-                  }}
-                  className="px-6 py-4 rounded-xl border-2 border-gray-300 text-gray-700 text-base font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm"
-                >
-                  <ArrowLeftIcon className="w-5 h-5 inline ml-2" />
-                  انصراف
-                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -1367,7 +1279,6 @@ function WalletPage() {
                   }
                   className="flex-1 bg-gradient-to-r from-[#359C67] to-[#2d7d52] text-white py-4 rounded-xl text-base font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
                 >
-                  <CheckIcon className="w-6 h-6" />
                   <span>
                     انتقال {isDigitMode ? "دیجیت" : "وجه"}
                   </span>

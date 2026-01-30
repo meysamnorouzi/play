@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { AiOutlineFileText, AiOutlineInbox, AiOutlineWallet, AiOutlineShopping, AiOutlineRest } from 'react-icons/ai'
 import { BsFlag } from 'react-icons/bs'
-import { PlusCircleIcon, CurrencyDollarIcon, WalletIcon } from '@heroicons/react/24/outline'
+import { PlusCircleIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import TasksModal from '../../components/home/TasksModal'
 import RequestsModal from '../../components/home/RequestsModal'
@@ -195,22 +195,6 @@ function Home() {
   // Format balance as Toman
   const formatBalance = (balance: number): string => {
     return new Intl.NumberFormat('fa-IR').format(balance)
-  }
-
-  // Get tasks stats for a child
-  const getTasksStats = (childId: string) => {
-    const activitiesKey = `childActivities_${childId}`
-    const storedActivities = localStorage.getItem(activitiesKey)
-    let activeCount = 0
-    let completedCount = 0
-
-    if (storedActivities) {
-      const activities: Task[] = JSON.parse(storedActivities)
-      activeCount = activities.filter(a => a.status === 'pending' || a.status === 'in-progress').length
-      completedCount = activities.filter(a => a.status === 'completed').length
-    }
-
-    return { activeCount, completedCount }
   }
 
   // Calculate number of tasks and requests for a child
@@ -549,56 +533,41 @@ function Home() {
                 {children.map((child, index) => (
                   <motion.div
                     key={child.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    transition={{ duration: 0.25, delay: index * 0.06 }}
                     onClick={() => setActiveChildId(child.id)}
-                    className={`relative bg-gradient-to-br from-[#359C67] via-[#359C67] to-[#2E7D5A] rounded-3xl p-5 shadow-2xl overflow-hidden transition-all cursor-pointer flex-shrink-0 ${activeChildId === child.id
-                      ? 'ring-4 ring-[#81C784] ring-offset-2'
+                    className={`relative bg-gradient-to-br from-[#359C67] via-[#359C67] to-[#2E7D5A] rounded-2xl p-3.5 shadow-lg overflow-hidden transition-all cursor-pointer flex-shrink-0 hover:opacity-95 ${activeChildId === child.id
+                      ? 'ring-2 ring-[#81C784] ring-offset-1.5'
                       : 'opacity-90'
                       }`}
                     style={{
-                      width: children.length === 1 ? '100%' : '90%',
+                      width: children.length === 1 ? '100%' : '85%',
+                      ...(children.length > 1 && { maxWidth: 280 }),
                       scrollSnapAlign: 'start'
                     }}
                   >
-                    {/* Decorative circles */}
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent"></div>
+                    <div className="absolute -top-6 -right-6 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
-                    <div className="relative z-10">
-                      {/* Top Section */}
-                      <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-3">
-                          <div className="relative">
-                            <div className="absolute inset-0 bg-white/20 rounded-2xl blur-sm"></div>
-                            <img
-                              src={child.avatar}
-                              alt={`${child.firstName} ${child.lastName}`}
-                              className="relative w-14 h-14 rounded-2xl object-cover border-2 border-white/40 shadow-lg"
-                            />
-                          </div>
-                          <div>
-                            <h4 className="text-white text-base font-bold truncate mb-0.5">
-                              {child.firstName} {child.lastName}
-                            </h4>
-                            <div className="flex items-center gap-1">
-                              <WalletIcon className="w-3.5 h-3.5 text-white/70" />
-                              <p className="text-white/70 text-xs">کیف پول</p>
-                            </div>
-                          </div>
-                        </div>
+                    <div className="relative z-10 flex items-center gap-3">
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm" />
+                        <img
+                          src={child.avatar}
+                          alt={`${child.firstName} ${child.lastName}`}
+                          className="relative w-11 h-11 rounded-xl object-cover border-2 border-white/40 shadow-md"
+                        />
                       </div>
-
-                      {/* Balance Display */}
-                      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                        <p className="text-white/70 text-xs text-center mb-2">موجودی</p>
-                        <div className="flex items-center justify-center gap-2">
-                          <p className="text-white text-2xl font-bold">
-                            {formatBalance(getChildWalletBalance(child.id))}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-white text-sm font-bold truncate">
+                          {child.firstName} {child.lastName}
+                        </h4>
+                        <div className="flex items-baseline gap-1.5 mt-0.5">
+                          <span className="text-white/70 text-xs">کد ملی:</span>
+                          <p className="text-white text-base font-bold tabular-nums">
+                            {toPersianNumber(child.nationalId)}
                           </p>
-                          <p className="text-white/70 text-sm font-medium">تومان</p>
                         </div>
                       </div>
                     </div>
@@ -609,7 +578,6 @@ function Home() {
 
             {childrenToDisplay.map((child) => {
               const { tasksCount, requestsCount } = getChildStats(child.id)
-              const { activeCount, completedCount } = getTasksStats(child.id)
               const childGoals = goals.filter(g => g.childId === child.id)
               const childActivities = activities.filter(a => a.childId === child.id).slice(0, 5)
               const recentTasks = getRecentTasks(child.id)
@@ -684,11 +652,28 @@ function Home() {
                         </div>
                         <p className="text-gray-500 text-xs mb-1">پس‌انداز</p>
                         <p className="text-gray-900 text-sm font-bold">
-                          {formatBalance(childGoals.reduce((sum, goal) => sum + goal.currentAmount, 0))}
+                          {formatBalance(childGoals.reduce((sum, goal) => sum + goal.currentAmount, 0))} (تومان) 
                         </p>
                       </div>
                     </motion.div>
 
+                    {/* Wallet Balance */}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                      className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
+                    >
+                      <div className="flex flex-col items-center text-center">
+                      <div className="w-12 h-12 bg-[#C8E6C9] rounded-xl flex items-center justify-center mb-2">
+                          <AiOutlineWallet className="w-6 h-6 text-[#359C67]" />
+                        </div>
+                        <p className="text-gray-500 text-xs mb-1">موجودی کیف پول</p>
+                        <p className="text-gray-900 text-sm font-bold">
+                          {formatBalance(getChildWalletBalance(child.id))} (تومان)
+                        </p>
+                      </div>
+                    </motion.div>
                     {/* Goal Card */}
                     {childGoals.length > 0 ? (
                       <motion.div
@@ -746,25 +731,6 @@ function Home() {
                         </div>
                       </motion.div>
                     )}
-
-                    {/* Missions Summary */}
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm"
-                    >
-                      <div className="flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-2">
-                          <AiOutlineFileText className="w-6 h-6 text-green-700" />
-                        </div>
-                        <p className="text-gray-500 text-xs mb-1">مأموریت</p>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-gray-900 text-xs font-bold">فعال: {toPersianNumber(activeCount)}</span>
-                          <span className="text-gray-600 text-xs">انجام: {toPersianNumber(completedCount)}</span>
-                        </div>
-                      </div>
-                    </motion.div>
                   </div>
 
                   {/* Recent Activity */}

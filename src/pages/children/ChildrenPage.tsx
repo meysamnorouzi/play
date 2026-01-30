@@ -229,7 +229,7 @@ function ChildrenPage() {
                             e.stopPropagation()
                             navigate(`/children/${child.id}`)
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-l from-[#359C67] to-[#359C67] hover:from-[#2E7D5A] hover:to-[#2E7D5A] text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm"
+                          className="flex-1 w-full flex items-center justify-center gap-2 bg-gradient-to-l from-purple-50 to-[#E8F5E9] hover:from-purple-100 hover:to-[#C8E6C9] text-[#359C67] border-2 border-[#C8E6C9] hover:border-[#A5D6A7] px-4 py-3 rounded-xl text-sm font-semibold transition-all"
                           whileTap={{ scale: 0.97 }}
                           whileHover={{ scale: 1.02 }}
                         >
@@ -257,7 +257,7 @@ function ChildrenPage() {
                           setSelectedChildForTask(child)
                           setShowAddTaskModal(true)
                         }}
-                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-l from-purple-50 to-[#E8F5E9] hover:from-purple-100 hover:to-[#C8E6C9] text-[#359C67] border-2 border-[#C8E6C9] hover:border-[#A5D6A7] px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-l from-[#359C67] to-[#359C67] hover:from-[#2E7D5A] hover:to-[#2E7D5A] text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm"
                         whileTap={{ scale: 0.98 }}
                         whileHover={{ scale: 1.01 }}
                       >

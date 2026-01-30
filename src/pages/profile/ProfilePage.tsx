@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
   ChevronLeftIcon, 
@@ -9,31 +9,12 @@ import {
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { useAuth } from '../../context/AuthContext'
-import { slides } from '../../components/home/HomeInfoModal'
 import EditProfileModal from '../../components/profile/EditProfileModal'
 
 function ProfilePage() {
-  const [showMenu, setShowMenu] = useState(false)
-  const [selectedSlideIndex, setSelectedSlideIndex] = useState(1)
   const [showEditModal, setShowEditModal] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-
-  // Read selected slide from localStorage
-  useEffect(() => {
-    const savedSlide = localStorage.getItem('selectedSlide')
-    if (savedSlide) {
-      setSelectedSlideIndex(parseInt(savedSlide))
-    }
-    
-    const handleSlideChange = (event: Event) => {
-      const customEvent = event as CustomEvent
-      setSelectedSlideIndex(customEvent.detail)
-    }
-    
-    window.addEventListener('slideChanged', handleSlideChange)
-    return () => window.removeEventListener('slideChanged', handleSlideChange)
-  }, [])
 
   // Convert date to display format - kept for future use
   // const formatBirthDate = (date?: string) => {
@@ -53,10 +34,6 @@ function ProfilePage() {
   const userAvatar = user?.avatar || '/image/avatars/piri.svg'
 
   // Get selected slide
-  const selectedSlide = slides[selectedSlideIndex]
-  
-  // Use selected slide image as cover
-  const coverImage = selectedSlide.image
 
   const handleLogout = () => {
     logout()
@@ -74,26 +51,8 @@ function ProfilePage() {
     <div className="min-h-screen" dir="rtl">
       {/* Header with Cover Image */}
       <div className="relative">
-        {/* Cover Image */}
-        <div className="h-56 bg-gray-950 relative overflow-hidden">
-          <img 
-            src={coverImage} 
-            alt="Cover" 
-            className="w-full h-full object-cover opacity-60"
-          />
-    
-
-          {/* Settings Button */}
-          <button 
-            onClick={() => setShowMenu(!showMenu)}
-            className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg"
-          >
-           <ChevronLeftIcon className="w-5 h-5 text-gray-700" />
-          </button>
-        </div>
-
         {/* Profile Avatar - Overlapping */}
-        <div className="absolute -bottom-16 right-1/2 transform translate-x-1/2">
+        <div className="flex items-center justify-center pt-10">
           <div className="relative">
             <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
               <img 
@@ -109,7 +68,7 @@ function ProfilePage() {
       </div>
 
       {/* Profile Content */}
-      <div className="pt-20 px-4 pb-24">
+      <div className="pt-10 px-4 pb-24">
         {/* User Info */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{fullName}</h1>
