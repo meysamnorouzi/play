@@ -28,20 +28,15 @@ export function SplashScreen() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgb(53, 156, 103)',
+        backgroundColor: '#349a67',
         opacity: fadeOut ? 0 : 1,
-        transition: `opacity ${FADE_OUT_MS}ms ease-out`,
         pointerEvents: fadeOut ? 'none' : 'auto',
       }}
     >
       <img
-        src={`icon/parent-logo.svg`}
+        src="/image/Splash%20screen%20parent.gif"
         alt="Digi Parent"
-        style={{
-          width: 'min(70vw, 280px)',
-          height: 'auto',
-          objectFit: 'contain',
-        }}
+        className='w-[40%] object-contain'
       />
     </div>
   )

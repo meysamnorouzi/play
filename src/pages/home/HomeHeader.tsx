@@ -4,7 +4,7 @@ import MenuModal from '../../components/home/MenuModal'
 
 function HomeHeader() {
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false)
-  const [totalBalance, setTotalBalance] = useState<number>(0)
+  const [totalBalance, setTotalBalance] = useState<number>(12000000)
 
   useEffect(() => {
     loadWalletBalance()
@@ -46,7 +46,6 @@ function HomeHeader() {
       // If no children, create a default balance
       total = Math.floor(Math.random() * 10000000) + 5000000
     }
-
     setTotalBalance(total)
   }
 

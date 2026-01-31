@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 17 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g transform="matrix(1,0,0,1,-262.915829,-258.648785)">
+        <g transform="matrix(-1.12511,0,0,1.673599,837.860196,-819.573708)">
+            <path d="M497.4,647.978C496.677,648.032 496.711,648.84 497.376,648.878" style="fill:none;stroke:rgb(81,82,108);stroke-width:0.91px;"/>
+        </g>
+        <g transform="matrix(0.831335,0,0,0.834015,131.38355,64.139277)">
+            <path d="M168,251C171.31,251 174,248.31 174,245L174,240C174,236.69 171.31,234 168,234C164.69,234 162,236.69 162,240L162,245C162,248.31 164.69,251 168,251Z" style="fill:none;fill-rule:nonzero;stroke:rgb(81,82,108);stroke-width:1.56px;stroke-miterlimit:4;"/>
+        </g>
+        <path d="M270.977,276.099L270.977,277.216" style="fill:none;stroke:rgb(81,82,108);stroke-width:1.3px;"/>
+        <g transform="matrix(0.831335,0,0,0.834015,131.38355,64.139277)">
+            <path d="M159,243L159,245C159,249.97 163.03,254 168,254C172.97,254 177,249.97 177,245" style="fill:none;fill-rule:nonzero;stroke:rgb(81,82,108);stroke-width:1.56px;stroke-miterlimit:4;"/>
+        </g>
+        <g transform="matrix(0.566819,0,0,0.834015,175.901544,62.382467)">
+            <path d="M165.11,239.48C166.89,238.83 168.83,238.83 170.61,239.48" style="fill:none;fill-rule:nonzero;stroke:rgb(81,82,108);stroke-width:1.82px;stroke-miterlimit:4;"/>
+        </g>
+        <g transform="matrix(0.566819,0,0,0.834015,175.89871,61.74638)">
+            <path d="M166.03,242.48C167.23,242.15 168.5,242.15 169.7,242.48" style="fill:none;fill-rule:nonzero;stroke:rgb(81,82,108);stroke-width:1.82px;stroke-miterlimit:4;"/>
+        </g>
+    </g>
+</svg>

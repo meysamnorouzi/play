@@ -220,8 +220,8 @@ function Home() {
       const mockTasks: Task[] = [
         {
           id: '1',
-          title: 'خرید کتاب درسی',
-          description: 'خرید کتاب ریاضی و علوم برای ترم جدید',
+          title: 'اسمارتینز',
+          description: 'گذراندن سه درس اول از «آکادمی هنر تعامل» در اسمارتینز',
           category: 'خرید',
           date: now - 1 * 24 * 60 * 60 * 1000,
           duration: 45,
@@ -230,8 +230,8 @@ function Home() {
         },
         {
           id: '2',
-          title: 'پرداخت شهریه کلاس',
-          description: 'پرداخت شهریه کلاس زبان انگلیسی',
+          title: 'ماموریت',
+          description: ' همکاری در پذیرایی و مهمان‌داری برای مهمانی پنج‌شنبه شب',
           category: 'پرداخت',
           date: now - 2 * 24 * 60 * 60 * 1000,
           duration: 20,
@@ -240,33 +240,13 @@ function Home() {
         },
         {
           id: '3',
-          title: 'خرید لوازم تحریر',
-          description: 'خرید دفتر، مداد و خودکار',
+          title: 'پس‌انداز',
+          description: 'پس‌انداز بیست درصد از پول ماهیانه ',
           category: 'خرید',
           date: now - 3 * 24 * 60 * 60 * 1000,
           duration: 30,
-          status: 'pending',
+          status: 'completed',
           points: 30
-        },
-        {
-          id: '4',
-          title: 'واریز وجه به کیف پول',
-          description: 'واریز وجه برای خرید اینترنتی',
-          category: 'واریز',
-          date: now - 4 * 24 * 60 * 60 * 1000,
-          duration: 10,
-          status: 'completed',
-          points: 25
-        },
-        {
-          id: '5',
-          title: 'خرید اسباب بازی',
-          description: 'خرید یک اسباب بازی از فروشگاه',
-          category: 'خرید',
-          date: now - 5 * 24 * 60 * 60 * 1000,
-          duration: 25,
-          status: 'completed',
-          points: 40
         }
       ]
       localStorage.setItem(activitiesKey, JSON.stringify(mockTasks))
@@ -294,9 +274,9 @@ function Home() {
         },
         {
           id: '2',
-          title: 'درخواست خرید بازی',
-          description: 'درخواست خرید بازی جدید',
-          type: 'خرید',
+          title: 'درخواست صدور کارت',
+          description: 'درخواست صدور کارت کهکشانی',
+          type: 'کارت',
           date: Date.now() - 1 * 24 * 60 * 60 * 1000,
           status: 'pending'
         }
@@ -824,11 +804,11 @@ function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-center justify-center pt-10 px-4"
+            className="flex flex-col items-center justify-center pt-5 px-4"
           >
             {/* Main Icon Container with Gradient Background */}
             <div className='w-full mb-4 flex items-center justify-center'>
-              <img src="/icon/Parent_add_child.gif" alt="" className='w-[70%]' />
+              <img src="/icon/Parent_add_child.gif" alt="" className='w-[50%]' />
             </div>
 
             {/* Text Content */}
@@ -837,7 +817,7 @@ function Home() {
                 هنوز فرزندی اضافه نشده است
               </h3>
               <p className="text-gray-600 text-base max-w-sm leading-relaxed">
-                برای شروع، اولین فرزند خود را اضافه کنید و مدیریت مالی او را آغاز کنید
+                برای شروع فرزند خود را اضافه و در دنیای استقلال را به رویش باز کنید.
               </p>
             </div>
 
@@ -846,9 +826,9 @@ function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowAddChildModal(true)}
-              className="flex items-center gap-2 bg-[#359C67] text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
+              className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-[#359C67] text-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-semibold transition-all"
             >
-              <PlusCircleIcon className="w-6 h-6" />
+              <PlusCircleIcon className="w-6" />
               <span>افزودن فرزند</span>
             </motion.button>
 

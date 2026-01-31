@@ -103,13 +103,15 @@ function ChildrenPage() {
     localStorage.setItem('childrenList', JSON.stringify(updatedChildren));
   };
 
-  const handleAddTask = (task: { title: string; reward: number }) => {
+  const handleAddTask = (task: { title: string; reward: number; rewardType?: 'digit' | 'money'; source?: 'radioteen' | 'shahrfarang' | 'digibook' }) => {
     if (!selectedChildForTask) return;
 
     const taskData = {
       id: Date.now().toString(),
       title: task.title,
       reward: task.reward,
+      rewardType: task.rewardType ?? 'digit',
+      ...(task.source && { source: task.source }),
     };
 
     // Load existing tasks
@@ -142,7 +144,7 @@ function ChildrenPage() {
         >
           {/* Main Icon Container with Gradient Background */}
           <div className='w-full mb-4 flex items-center justify-center'>
-            <img src="/icon/Parent_add_child.gif" alt="" className='w-[70%]' />
+            <img src="/icon/Parent_add_child.gif" alt="" className='w-[50%]' />
           </div>
 
           {/* Text Content */}
@@ -151,7 +153,7 @@ function ChildrenPage() {
               هنوز فرزندی اضافه نشده است
             </h3>
             <p className="text-gray-600 text-base max-w-sm leading-relaxed">
-              برای شروع، اولین فرزند خود را اضافه کنید و مدیریت مالی او را آغاز کنید
+              برای شروع فرزند خود را اضافه و در دنیای استقلال را به رویش باز کنید.
             </p>
           </div>
 
@@ -160,7 +162,7 @@ function ChildrenPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleAddChild}
-            className="flex items-center gap-2 bg-[#359C67] text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
+            className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-[#359C67] text-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl text-base sm:text-lg font-semibold transition-all"
           >
             <PlusCircleIcon className="w-6 h-6" />
             <span>افزودن فرزند</span>

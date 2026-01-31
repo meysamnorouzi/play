@@ -78,8 +78,8 @@ const LoginPage = () => {
         user: {
           id: 'local_user_' + phone,
           phone: phone,
-          firstName: 'کاربر',
-          lastName: 'محلی',
+          firstName: 'وحید',
+          lastName: 'ترابی',
         },
       };
       

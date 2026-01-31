@@ -11,7 +11,7 @@ import {
   CurrencyDollarIcon,
   PlusIcon
 } from '@heroicons/react/24/outline'
-import { AiOutlineFileText, AiOutlineWallet, AiOutlineShopping } from 'react-icons/ai';
+import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineFileText } from 'react-icons/ai'
 import { BsPiggyBank, BsFlag } from 'react-icons/bs';
 import Modal from '../../components/Modal';
 import AddTaskModal from '../../components/children/AddTaskModal';
@@ -365,30 +365,6 @@ function ChildDetailPage() {
     return Math.min(Math.max(age, 0), 18);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <span className="text-xs bg-gray-800 text-white px-2.5 py-1 rounded-full font-semibold">انجام شده</span>;
-      case 'in-progress':
-        return <span className="text-xs bg-gray-600 text-white px-2.5 py-1 rounded-full font-semibold">در حال انجام</span>;
-      default:
-        return <span className="text-xs bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full font-semibold">در انتظار</span>;
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'خرید':
-        return <AiOutlineShopping className="w-5 h-5" />;
-      case 'پرداخت':
-        return <AiOutlineWallet className="w-5 h-5" />;
-      case 'واریز':
-        return <AiOutlineWallet className="w-5 h-5" />;
-      default:
-        return <AiOutlineFileText className="w-5 h-5" />;
-    }
-  };
-
   const toggleAllowance = () => {
     if (!id || !allowance) return;
 
@@ -704,43 +680,48 @@ function ChildDetailPage() {
               <span className="text-sm text-gray-500">{toPersianNumber(activeActivities.length)} ماموریت</span>
             </div>
             <div className="space-y-3">
-              {activeActivities.slice(0, 3).map((activity, index) => (
-                <motion.div
+              {activeActivities.slice(0, 3).map((activity) => (
+                  <div
                   key={activity.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + index * 0.1 }}
-                  className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all"
+                  className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${activity.status === 'in-progress' ? 'bg-gray-200 text-gray-800' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                      {getCategoryIcon(activity.category)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-gray-900">{activity.title}</h4>
-                        {getStatusBadge(activity.status)}
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{activity.description}</p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md font-medium">
-                          {activity.category}
-                        </span>
-                        {activity.points !== undefined && activity.points > 0 && (
-                          <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2 py-1 rounded-md font-semibold border border-yellow-200">
-                            <CurrencyDollarIcon className="w-3 h-3" />
-                            {toPersianNumber(activity.points)} دیجیت
-                          </span>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        {activity.status === 'completed' ? (
+                          <AiOutlineCheckCircle className="w-5 h-5 text-green-600" />
+                        ) : activity.status === 'in-progress' ? (
+                          <AiOutlineClockCircle className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <AiOutlineClockCircle className="w-5 h-5 text-gray-400" />
                         )}
-                        <span className="flex items-center gap-1">
-                          <ClockIcon className="w-3.5 h-3.5" />
-                          {formatTime(activity.date)}
-                        </span>
+                        <h4 className="font-semibold text-gray-900 text-base">{activity.title}</h4>
                       </div>
+                      <p className="text-sm text-gray-600 mb-3 leading-relaxed">{activity.description}</p>
+                    </div>
+                    <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${activity.status === 'completed'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : activity.status === 'in-progress'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                      }`}>
+                      {activity.status === 'completed' ? 'انجام شده' :
+                        activity.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}
                     </div>
                   </div>
-                </motion.div>
+                  <div className='flex items-center justify-between w-full'>
+                        <div className="flex items-center gap-3 text-xs flex-wrap">
+                          <span className="bg-[#359C67] text-white px-3 py-1 rounded-full font-medium">
+                            {activity.category}
+                          </span>
+                          <span className="bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium border border-yellow-200 flex items-center gap-1">
+                            <CurrencyDollarIcon className="w-3 h-3" />
+                            {toPersianNumber(activity.points || 0)} دیجیت
+                          </span>
+                        </div>
+                        <span className="text-gray-500 text-xs">{formatTime(activity.date)}</span>
+                      </div>
+                </div>
               ))}
             </div>
           </motion.div>
@@ -754,43 +735,52 @@ function ChildDetailPage() {
             transition={{ delay: 0.8 }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">فعالیت‌های انجام شده</h3>
-              <span className="text-sm text-gray-500">{toPersianNumber(completedActivities.length)} فعالیت</span>
+              <h3 className="text-lg font-bold text-gray-900">ماموریت انجام شده</h3>
+              <span className="text-sm text-gray-500">{toPersianNumber(completedActivities.length)} ماموریت</span>
             </div>
             <div className="space-y-3">
-              {completedActivities.slice(0, 5).map((activity, index) => (
-                <motion.div
-                  key={activity.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.9 + index * 0.05 }}
-                  className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#359C67] text-white flex items-center justify-center shrink-0">
-                      <CheckCircleIcon className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 mb-1">{activity.title}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{activity.description}</p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md font-medium">
-                          {activity.category}
-                        </span>
-                        {activity.points !== undefined && activity.points > 0 && (
-                          <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2 py-1 rounded-md font-semibold border border-yellow-200">
-                            <CurrencyDollarIcon className="w-3 h-3" />
-                            {toPersianNumber(activity.points)} دیجیت
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <ClockIcon className="w-3.5 h-3.5" />
-                          {formatTime(activity.date)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+              {completedActivities.slice(0, 5).map((activity) => (
+                   <div
+                   key={activity.id}
+                   className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                 >
+                   <div className="flex items-start justify-between gap-3">
+                     <div className="flex-1">
+                       <div className="flex items-center gap-2 mb-2">
+                         {activity.status === 'completed' ? (
+                           <AiOutlineCheckCircle className="w-5 h-5 text-green-600" />
+                         ) : activity.status === 'in-progress' ? (
+                           <AiOutlineClockCircle className="w-5 h-5 text-blue-600" />
+                         ) : (
+                           <AiOutlineClockCircle className="w-5 h-5 text-gray-400" />
+                         )}
+                         <h4 className="font-semibold text-gray-900 text-base">{activity.title}</h4>
+                       </div>
+                       <p className="text-sm text-gray-600 mb-3 leading-relaxed">{activity.description}</p>
+                     </div>
+                     <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${activity.status === 'completed'
+                         ? 'bg-green-50 text-green-700 border border-green-200'
+                         : activity.status === 'in-progress'
+                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                           : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                       }`}>
+                       {activity.status === 'completed' ? 'انجام شده' :
+                         activity.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}
+                     </div>
+                   </div>
+                   <div className='flex items-center justify-between w-full'>
+                         <div className="flex items-center gap-3 text-xs flex-wrap">
+                           <span className="bg-[#359C67] text-white px-3 py-1 rounded-full font-medium">
+                             {activity.category}
+                           </span>
+                           <span className="bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium border border-yellow-200 flex items-center gap-1">
+                             <CurrencyDollarIcon className="w-3 h-3" />
+                             {toPersianNumber(activity.points || 0)} دیجیت
+                           </span>
+                         </div>
+                         <span className="text-gray-500 text-xs">{formatTime(activity.date)}</span>
+                       </div>
+                 </div>
               ))}
             </div>
           </motion.div>

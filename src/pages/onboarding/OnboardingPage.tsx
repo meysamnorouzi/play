@@ -94,7 +94,7 @@ const OnboardingPage = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col items-center justify-between px-4 font-sans pb-8 transition-colors duration-500 overflow-hidden" 
+      className="min-h-screen flex flex-col items-center justify-between px-4 pb-8 transition-colors duration-500 overflow-hidden" 
       style={{ backgroundColor: slides[currentSlide].bgColor }}
       dir="rtl"
     >

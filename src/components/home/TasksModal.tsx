@@ -107,7 +107,7 @@ function TasksModal({ isOpen, onClose, child, tasks }: TasksModalProps) {
                         ? 'bg-green-50 text-green-700 border border-green-200'
                         : task.status === 'in-progress'
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'bg-[#359C67] text-white'
+                          : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                       }`}>
                       {task.status === 'completed' ? 'انجام شده' :
                         task.status === 'in-progress' ? 'در حال انجام' : 'در انتظار'}

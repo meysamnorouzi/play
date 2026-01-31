@@ -6,6 +6,12 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
+  server: {
+    // Allow access from network (mobile devices on same network)
+    host: true, // or '0.0.0.0'
+    port: 5173, // Default Vite port, change if needed
+    strictPort: false, // Allow port to be changed if 5173 is busy
+  },
   build: {
     // Ensure proper chunking and module format
     rollupOptions: {

@@ -7,7 +7,7 @@ import TopUserBar from './TopUserBar'
 
 function MainLayout() {
   return (
-    <div className="relative flex flex-col min-h-screen bg-white">
+    <div className="relative flex flex-col w-full bg-white">
       <TopUserBar />
       {/* محتوای اصلی صفحه */}
       <div className="flex-1 pb-24">

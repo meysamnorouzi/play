@@ -10,6 +10,7 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import Modal from "../../components/Modal";
+import AddChildModal from "../../components/children/AddChildModal";
 import { Input } from "../../components/ui";
 import { toPersianNumber } from "../../utils/numberUtils";
 import {
@@ -37,7 +38,7 @@ interface Activity {
 }
 
 function WalletPage() {
-  const { user } = useAuth();
+  useAuth();
   const [totalBalance, setTotalBalance] = useState<number>(0);
   const [children, setChildren] = useState<Child[]>([]);
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
@@ -65,17 +66,12 @@ function WalletPage() {
   const [digitAmount, setDigitAmount] = useState(""); // Amount in digits
   const [chargeAmount, setChargeAmount] = useState("");
   const [insufficientBalance, setInsufficientBalance] = useState(false);
+  const [showAddChildModal, setShowAddChildModal] = useState(false);
 
   // Calculate money from digits: هر 100 دیجیت = 25000 تومان
   const calculateMoneyFromDigits = (digits: number): number => {
     return Math.floor((digits / 100) * 25000);
   };
-
-  // Get account owner name
-  const accountOwnerName =
-    user?.firstName && user?.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : user?.firstName || "کاربر";
 
   useEffect(() => {
     loadWalletData();
@@ -342,6 +338,29 @@ function WalletPage() {
     return child ? `${child.firstName} ${child.lastName}` : "نامشخص";
   };
 
+  const handleAddChildSubmit = (childData: {
+    firstName: string;
+    lastName: string;
+    nationalId: string;
+    birthDate: string;
+    avatar: string;
+  }) => {
+    const now = Date.now();
+    const isOnline = Math.random() > 0.5;
+    const newChild = {
+      id: Date.now().toString(),
+      ...childData,
+      password: "",
+      isOnline,
+      onlineSince: isOnline ? now : undefined,
+      lastOnlineTime: isOnline ? undefined : now - Math.random() * 24 * 60 * 60 * 1000,
+    };
+    const updatedChildren = [...children, newChild];
+    setChildren(updatedChildren);
+    localStorage.setItem("childrenList", JSON.stringify(updatedChildren));
+    setShowAddChildModal(false);
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     setTouchStart(touch.clientX);
@@ -440,7 +459,7 @@ function WalletPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative w-full"
+            className="relative w-full mb-6"
             style={{
               perspective: "1000px",
               touchAction: "pan-x",
@@ -452,7 +471,6 @@ function WalletPage() {
               className="relative w-full cursor-pointer"
               style={{
                 transformStyle: "preserve-3d",
-                transform: isCardFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                 transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                 pointerEvents: "auto",
               }}
@@ -489,13 +507,16 @@ function WalletPage() {
                 handleCardClick();
               }}
             >
-              {/* Front of Card */}
+              {/* Front of Card - Digipay style با رنگ سبز */}
               <div
-                className="relative bg-[#359C67] rounded-2xl p-4 sm:p-6 overflow-hidden aspect-video cursor-pointer select-none"
+                className="relative rounded-2xl p-4 sm:p-6 overflow-hidden aspect-video cursor-pointer select-none"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                   pointerEvents: "auto",
+                  backgroundColor: "#0a3324",
+                  backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+                  backgroundSize: "20px 20px",
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -510,27 +531,17 @@ function WalletPage() {
                   }
                 }}
               >
-                {/* Card Pattern Background */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16"></div>
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12"></div>
-                </div>
-
                 {/* Main Content */}
                 <div className="relative z-10 h-full flex flex-col justify-between">
-                  {/* Top Section - Card Type */}
+                  {/* Top Section - Chip + Card Number */}
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white/70 text-xs sm:text-sm font-medium mb-1">
-                        کارت بانکی
-                      </p>
-                      <p className="text-white text-sm sm:text-base font-semibold">
-                        Digi Parent Card
-                      </p>
-                    </div>
-                    <div className="text-white/90">
-                      <WalletIcon className="w-8 h-8 sm:w-10 sm:h-10" />
-                    </div>
+                    {/* Card Number - Persian numerals masked */}
+                    <p className="text-white/90 text-base font-medium tracking-widest">
+                      {toPersianNumber("5047 56** **** 1971")}
+                    </p>
+                    <p className="text-white/90 text-2xl font-semibold lowercase tracking-wide">
+                      digicard
+                    </p>
                   </div>
 
                   {/* Balance Display - Center */}
@@ -539,114 +550,23 @@ function WalletPage() {
                       <p className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-1 break-all">
                         {formatBalance(totalBalance)}
                       </p>
-                      <p className="text-white/70 text-sm sm:text-base font-medium">تومان</p>
+                      <p className="text-white/80 text-sm sm:text-base font-medium">ریال</p>
                     </div>
                   </div>
 
-                  {/* Bottom Section */}
+                  {/* Bottom Section - digipay + Expiry */}
                   <div className="flex items-end justify-between mt-auto">
-                    {/* Left Side - Account Owner */}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-white/70 text-xs sm:text-sm font-medium mb-1">
-                        صاحب حساب
-                      </p>
-                      <p className="text-white text-sm sm:text-base font-semibold truncate">
-                        {accountOwnerName}
-                      </p>
-                    </div>
-
-                    {/* Right Side - Card Number */}
-                    <div className="text-left shrink-0">
-                      <p className="text-white text-sm sm:text-base font-semibold tracking-wider">
-                        •••• •••• •••• 1214
-                      </p>
-                      <p className="text-white/70 text-xs sm:text-sm mt-1">12/24</p>
-                    </div>
+                  <p className="text-white/80 text-sm font-medium">
+                      {toPersianNumber("09/09")}
+                    </p>
+                    {/* EMV Chip - خطوط افقی */}
+                   <img src="/image/Shetab_Banking_System.png" alt="" className="w-8" />
                   </div>
                 </div>
               </div>
 
-              {/* Back of Card */}
-              <div
-                className="absolute inset-0 bg-[#359C67] rounded-2xl p-4 sm:p-6 overflow-hidden aspect-video select-none cursor-pointer"
-                style={{
-                  backfaceVisibility: "hidden",
-                  WebkitBackfaceVisibility: "hidden",
-                  transform: "rotateY(180deg)",
-                  pointerEvents: "auto",
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Check if it was a click (not drag)
-                  if (touchStart !== null && touchEnd !== null) {
-                    const moveDistance = Math.abs(touchStart - touchEnd);
-                    if (moveDistance < 10) {
-                      setIsCardFlipped(!isCardFlipped);
-                    }
-                  } else {
-                    setIsCardFlipped(!isCardFlipped);
-                  }
-                }}
-              >
-                {/* Card Pattern Background */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mt-16"></div>
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full -mr-12 -mb-12"></div>
-                </div>
-
-                {/* Back Content */}
-                <div className="relative z-10 h-full flex flex-col justify-between">
-                  {/* Middle Section - CVV */}
-                  <div className="flex-1 flex flex-col mb-2 justify-center">
-                    <div className="bg-white/10 rounded-lg p-4 sm:p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-white/70 text-xs sm:text-sm">CVV</p>
-                        <p className="text-white text-lg sm:text-xl font-bold tracking-widest">
-                          123
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Section - Additional Info */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-white/70 text-xs sm:text-sm">شماره کارت</p>
-                      <p className="text-white text-sm sm:text-base font-semibold tracking-wider truncate">
-                        1214 5678 9012 3456
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-white/70 text-xs sm:text-sm">تاریخ انقضا</p>
-                      <p className="text-white text-sm sm:text-base font-semibold">12/24</p>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-white/70 text-xs sm:text-sm">صاحب کارت</p>
-                      <p className="text-white text-sm sm:text-base font-semibold truncate">
-                        {accountOwnerName}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </motion.div>
-
-          {/* Pagination Dots */}
-          <div className="flex justify-center gap-2 mt-4 mb-4">
-            <button
-              onClick={() => setIsCardFlipped(false)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                !isCardFlipped ? "bg-[#359C67] w-6" : "bg-gray-300"
-              }`}
-            />
-            <button
-              onClick={() => setIsCardFlipped(true)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                isCardFlipped ? "bg-[#359C67] w-6" : "bg-gray-300"
-              }`}
-            />
-          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 sm:gap-4">
@@ -783,11 +703,10 @@ function WalletPage() {
                   className="flex items-center gap-3 sm:gap-4 py-3.5 sm:py-4 rounded-xl hover:bg-gray-50 transition-colors"
                 >
                   <div
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 ${
-                      activity.type === "income"
+                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 ${activity.type === "income"
                         ? "bg-green-50 text-green-600"
                         : "bg-red-50 text-red-600"
-                    }`}
+                      }`}
                   >
                     {activity.type === "income" ? (
                       <AiOutlineArrowDown className="w-6 h-6 sm:w-7 sm:h-7" />
@@ -813,11 +732,10 @@ function WalletPage() {
 
                   <div className="text-left shrink-0">
                     <p
-                      className={`text-sm sm:text-base font-bold ${
-                        activity.type === "income"
+                      className={`text-sm sm:text-base font-bold ${activity.type === "income"
                           ? "text-green-600"
                           : "text-red-600"
-                      }`}
+                        }`}
                     >
                       {activity.type === "income" ? "+" : "-"}{" "}
                       {formatBalance(activity.amount)}
@@ -916,7 +834,8 @@ function WalletPage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 mt-5 bg-[#359C67] text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
+                onClick={() => setShowAddChildModal(true)}
+                className="flex w-full justify-center items-center gap-2 mt-5 bg-[#359C67] text-white px-14 py-4 rounded-xl font-semibold transition-all duration-300"
               >
                 <PlusCircleIcon className="w-6 h-6" />
                 <span>افزودن فرزند</span>
@@ -972,11 +891,11 @@ function WalletPage() {
                   حداقل مبلغ:{" "}
                   {isDigitMode
                     ? formatBalance(
-                        (parseFloat(digitAmount) || parseFloat(transferAmount) || 0) - parentDigitBalance
-                      ) + " دیجیت"
+                      (parseFloat(digitAmount) || parseFloat(transferAmount) || 0) - parentDigitBalance
+                    ) + " دیجیت"
                     : formatBalance(
-                        parseFloat(transferAmount) - parentMoneyBalance
-                      ) + " تومان"}
+                      parseFloat(transferAmount) - parentMoneyBalance
+                    ) + " تومان"}
                 </p>
               </div>
 
@@ -1075,17 +994,15 @@ function WalletPage() {
                     setTransferAmount("");
                     setDigitAmount("");
                   }}
-                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#359C67] focus:ring-offset-2 ${
-                    isDigitMode ? 'bg-[#359C67]' : 'bg-gray-300'
-                  }`}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#359C67] focus:ring-offset-2 ${isDigitMode ? 'bg-[#359C67]' : 'bg-gray-300'
+                    }`}
                   type="button"
                   role="switch"
                   aria-checked={isDigitMode}
                 >
                   <span
-                    className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                      isDigitMode ? 'translate-x-[-22px]' : 'translate-x-[-2px]'
-                    }`}
+                    className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${isDigitMode ? 'translate-x-[-22px]' : 'translate-x-[-2px]'
+                      }`}
                   />
                 </button>
               </div>
@@ -1146,28 +1063,26 @@ function WalletPage() {
                     min={1}
                     inputClassName="text-lg border-2 focus:border-[#359C67] focus:ring-[#359C67]/20"
                   />
-                  
-                  {digitAmount && parseFloat(digitAmount) > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-blue-900">مبلغ معادل:</span>
-                        <span className="text-xl font-bold text-blue-700">
-                          {formatBalance(calculateMoneyFromDigits(parseFloat(digitAmount)))} تومان
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-100/50 rounded-lg px-3 py-1.5">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>هر 100 دیجیت = 25,000 تومان</span>
-                      </div>
-                    </motion.div>
-                  )}
-                  
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-semibold text-blue-900">مبلغ معادل:</span>
+                      <span className="text-xl font-bold text-blue-700">
+                        {formatBalance(calculateMoneyFromDigits(parseFloat(digitAmount) || 0))} تومان
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-100/50 rounded-lg px-3 py-1.5">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>هر 100 دیجیت = 25,000 تومان</span>
+                    </div>
+                  </motion.div>
+
                   <div className="bg-gradient-to-r from-[#359C67]/10 to-[#359C67]/5 rounded-xl p-4 border border-[#359C67]/20">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600 font-medium">موجودی شما:</span>
@@ -1184,8 +1099,8 @@ function WalletPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
-                    const amount = isDigitMode 
-                      ? parseFloat(digitAmount) 
+                    const amount = isDigitMode
+                      ? parseFloat(digitAmount)
                       : parseFloat(transferAmount);
                     const hasEnough = isDigitMode
                       ? parentDigitBalance >= amount
@@ -1273,7 +1188,7 @@ function WalletPage() {
                   }}
                   disabled={
                     !selectedChildId ||
-                    (isDigitMode 
+                    (isDigitMode
                       ? (!digitAmount || parseFloat(digitAmount) <= 0)
                       : (!transferAmount || parseFloat(transferAmount) <= 0))
                   }
@@ -1288,6 +1203,12 @@ function WalletPage() {
           )}
         </div>
       </Modal>
+
+      <AddChildModal
+        isOpen={showAddChildModal}
+        onClose={() => setShowAddChildModal(false)}
+        onAdd={handleAddChildSubmit}
+      />
     </div>
   );
 }

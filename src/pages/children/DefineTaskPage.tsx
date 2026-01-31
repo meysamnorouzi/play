@@ -9,6 +9,10 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from "../../components/Modal";
 import { Input } from "../../components/ui";
+import { formatBalance } from "../../utils/numberUtils";
+
+const calculateMoneyFromDigits = (digits: number): number =>
+  Math.floor((digits / 100) * 25000);
 
 interface Child {
   id: string;
@@ -27,6 +31,7 @@ interface Task {
   id: string;
   title: string;
   reward: number;
+  rewardType?: "digit" | "money";
 }
 
 function DefineTaskPage() {
@@ -37,6 +42,7 @@ function DefineTaskPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDigitGuide, setShowDigitGuide] = useState(false);
   const [newTask, setNewTask] = useState({ title: "", reward: "" });
+  const [isDigitMode, setIsDigitMode] = useState(true);
 
   useEffect(() => {
     if (!id) {
@@ -62,11 +68,12 @@ function DefineTaskPage() {
     const storedTasks = localStorage.getItem(`tasks_${id}`);
     if (storedTasks) {
       const allTasks = JSON.parse(storedTasks);
-      // Migrate old tasks to remove type field
+      // Migrate old tasks: ensure rewardType (default digit)
       const migratedTasks = allTasks.map((task: any) => ({
         id: task.id,
         title: task.title,
         reward: task.reward,
+        rewardType: task.rewardType ?? "digit",
       }));
       setTasks(migratedTasks);
       if (id) {
@@ -116,13 +123,14 @@ function DefineTaskPage() {
   const handleSaveTask = () => {
     if (!newTask.title.trim() || !newTask.reward.trim()) return;
 
-    const reward = parseInt(newTask.reward);
-    if (isNaN(reward) || reward <= 0) return;
+    const rewardNum = parseFloat(newTask.reward);
+    if (isNaN(rewardNum) || rewardNum <= 0) return;
 
     const task: Task = {
       id: Date.now().toString(),
       title: newTask.title,
-      reward: reward,
+      reward: Math.floor(rewardNum),
+      rewardType: isDigitMode ? "digit" : "money",
     };
 
     const updatedTasks = [...tasks, task];
@@ -282,7 +290,9 @@ function DefineTaskPage() {
                         <div className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 px-3 py-1.5 rounded-full border border-yellow-200">
                           <CurrencyDollarIcon className="w-4 h-4" />
                           <span className="text-sm font-semibold">
-                            {task.reward} دیجیت
+                            {task.rewardType === "money"
+                              ? `${formatBalance(task.reward)} تومان`
+                              : `${task.reward} دیجیت`}
                           </span>
                         </div>
                       </div>
@@ -325,6 +335,27 @@ function DefineTaskPage() {
             dir="rtl"
           />
 
+          {/* Toggle: دیجیت / تومان */}
+          <div className="flex items-center gap-2 py-2">
+            <span className={`text-sm font-medium ${isDigitMode ? "text-gray-900" : "text-gray-500"}`}>
+              پاداش به دیجیت
+            </span>
+            <button
+              onClick={() => {
+                setIsDigitMode(!isDigitMode);
+                setNewTask((prev) => ({ ...prev, reward: "" }));
+              }}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#359C67] focus:ring-offset-2 ${isDigitMode ? "bg-[#359C67]" : "bg-gray-300"}`}
+              type="button"
+              role="switch"
+              aria-checked={isDigitMode}
+            >
+              <span
+                className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${isDigitMode ? "translate-x-[-22px]" : "translate-x-[-2px]"}`}
+              />
+            </button>
+          </div>
+
           <Input
             type="number"
             id="taskReward"
@@ -332,15 +363,34 @@ function DefineTaskPage() {
             onChange={(e) =>
               setNewTask({ ...newTask, reward: e.target.value })
             }
-            placeholder="100"
+            placeholder={isDigitMode ? "مثال: 100" : "مثال: 25000"}
             dir="ltr"
             min={1}
+            inputClassName="text-lg border-2 focus:border-[#359C67] focus:ring-[#359C67]/20"
           />
+
+          {isDigitMode && newTask.reward.trim() && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-blue-900">مبلغ معادل:</span>
+                <span className="text-lg font-bold text-blue-700">
+                  {formatBalance(calculateMoneyFromDigits(parseFloat(newTask.reward) || 0))} تومان
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-100/50 rounded-lg px-3 py-1.5">
+                <span>هر 100 دیجیت = 25,000 تومان</span>
+              </div>
+            </div>
+          )}
+
+          {!isDigitMode && (
+            <p className="text-xs text-gray-500">پاداش به تومان</p>
+          )}
 
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleSaveTask}
-            disabled={!newTask.title.trim() || !newTask.reward.trim()}
+            disabled={!newTask.title.trim() || !newTask.reward.trim() || (parseFloat(newTask.reward) || 0) <= 0}
             className="w-full bg-gradient-to-l from-[#359C67] to-[#359C67] hover:from-[#2E7D5A] hover:to-[#2E7D5A] text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <span>ذخیره ماموریت</span>
