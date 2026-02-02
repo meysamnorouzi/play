@@ -39,6 +39,28 @@
           "value": "text/css"
         }
       ]
+    },
+    {
+      "source": "/(sw\\.js|workbox-.*\\.js|registerSW\\.js)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.webmanifest|.*\\.json)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
     }
   ],
   "rewrites": [

@@ -6,10 +6,12 @@ import {
   PencilSquareIcon, 
   Cog6ToothIcon, 
   HeartIcon, 
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline'
 import { useAuth } from '../../context/AuthContext'
 import EditProfileModal from '../../components/profile/EditProfileModal'
+import { isPWAInstalled } from '../../utils/pwa'
 
 function ProfilePage() {
   const [showEditModal, setShowEditModal] = useState(false)
@@ -40,7 +42,15 @@ function ProfilePage() {
     navigate('/login')
   }
 
+  const handleInstallApp = () => {
+    localStorage.removeItem('pwa-install-dismissed')
+    window.location.reload()
+  }
+
   const menuItems = [
+    ...(!isPWAInstalled()
+      ? [{ icon: ArrowDownTrayIcon, label: 'نصب اپلیکیشن', color: 'text-emerald-600' as const, onClick: handleInstallApp }]
+      : []),
     { icon: Cog6ToothIcon, label: 'تنظیمات حساب', color: 'text-gray-700', onClick: () => {} },
     { icon: ShoppingCartIcon, label: 'سفارشات', color: 'text-gray-700', badge: '3', onClick: () => {} },
     { icon: HeartIcon, label: 'علاقه‌مندی‌ها', color: 'text-gray-700', onClick: () => {} },

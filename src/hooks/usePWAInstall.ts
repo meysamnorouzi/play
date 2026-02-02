@@ -5,6 +5,15 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+/** Detect if user is on iOS (iPhone, iPad, iPod) */
+export function isIOS(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  )
+}
+
 export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstallable, setIsInstallable] = useState(false)
@@ -18,7 +27,7 @@ export function usePWAInstall() {
     }
 
     // Check if running as PWA (iOS)
-    if ((window.navigator as any).standalone) {
+    if ((window.navigator as Navigator & { standalone?: boolean }).standalone) {
       setIsInstalled(true)
       return
     }
@@ -30,28 +39,24 @@ export function usePWAInstall() {
     }
 
     window.addEventListener('beforeinstallprompt', handler)
-
-    // Check if already installed
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true)
       setIsInstallable(false)
       setDeferredPrompt(null)
     })
 
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler)
-    }
+    return () => window.removeEventListener('beforeinstallprompt', handler)
   }, [])
 
-  const promptInstall = async (): Promise<boolean> => {
-    if (!deferredPrompt) {
-      return false
-    }
+  // On iOS, show install prompt (manual Add to Home Screen instructions)
+  const isIOSDevice = isIOS()
+  const showIOSInstallPrompt = isIOSDevice && !isInstalled
 
+  const promptInstall = async (): Promise<boolean> => {
+    if (!deferredPrompt) return false
     try {
       deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
-
       if (outcome === 'accepted') {
         setIsInstallable(false)
         setDeferredPrompt(null)
@@ -68,5 +73,7 @@ export function usePWAInstall() {
     isInstallable,
     isInstalled,
     promptInstall,
+    isIOS: isIOSDevice,
+    showInstallPrompt: isInstallable || showIOSInstallPrompt,
   }
 }
