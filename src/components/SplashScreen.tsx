@@ -8,6 +8,10 @@ export function SplashScreen() {
   const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
+    // Remove HTML initial splash (from index.html) once React SplashScreen has mounted
+    const initialSplash = document.getElementById('app-initial-splash')
+    if (initialSplash) initialSplash.remove()
+
     const hideAt = SPLASH_DURATION_MS - FADE_OUT_MS
     const fadeTimer = setTimeout(() => setFadeOut(true), hideAt)
     const hideTimer = setTimeout(() => setVisible(false), SPLASH_DURATION_MS)
@@ -34,9 +38,9 @@ export function SplashScreen() {
       }}
     >
       <img
-        src="/image/Splash%20screen%20parent.gif"
+        src="/icon/icon-512x512.png"
         alt="Digi Parent"
-        className='w-[40%] object-contain'
+        className="w-[40%] max-w-[160px] object-contain"
       />
     </div>
   )

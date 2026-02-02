@@ -33,7 +33,7 @@ export default defineConfig({
         short_name: 'Digi Parent',
         description: 'با استفاده از این اپلیکیشن میتوانید به راحتی به تمام امکانات دسترسی داشته باشید',
         theme_color: '#237147',
-        background_color: '#ffffff',
+        background_color: '#349a67', // Matches splash screen green
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
