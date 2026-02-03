@@ -71,22 +71,22 @@
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <!-- Initial load: green splash background + app icon (matches PWA manifest) -->
+    <!-- Initial load: green splash (parent-logo.svg has built-in green bg) -->
     <style>
-      html, body { margin: 0; padding: 0; background-color: #349a67; min-height: 100vh; }
+      html, body { margin: 0; padding: 0; background-color: #359c67; min-height: 100vh; }
       body { display: flex; align-items: center; justify-content: center; }
       #root { width: 100%; min-height: 100vh; }
       #app-initial-splash {
         position: fixed; inset: 0; z-index: 99999;
         display: flex; align-items: center; justify-content: center;
-        background-color: #349a67;
+        background-color: #359c67;
       }
-      #app-initial-splash img { width: 40%; max-width: 160px; height: auto; object-fit: contain; }
+      #app-initial-splash img { width: 40%; max-width: 200px; height: auto; object-fit: contain; }
     </style>
   </head>
   <body>
     <div id="app-initial-splash" aria-hidden="true">
-      <img src="/icon/icon-512x512.png" alt="Digi Parent" />
+      <img src="/icon/parent-logo.svg" alt="Digi Parent" />
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

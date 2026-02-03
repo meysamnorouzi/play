@@ -27,13 +27,13 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt', // Show update notification instead of auto-updating
       injectRegister: 'auto', // Virtual module handles registration when used
-      includeAssets: ['favicon.ico', 'icon/*.png', 'icon/*.svg', 'font/*.ttf', 'offline.html'],
+      includeAssets: ['favicon.ico', 'icon/parent-logo.svg', 'font/*.ttf', 'offline.html'],
       manifest: {
         name: 'Digi Parent',
         short_name: 'Digi Parent',
         description: 'با استفاده از این اپلیکیشن میتوانید به راحتی به تمام امکانات دسترسی داشته باشید',
         theme_color: '#237147',
-        background_color: '#349a67', // Matches splash screen green
+        background_color: '#359c67', // Matches parent-logo.svg green bg
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
@@ -42,21 +42,15 @@ export default defineConfig({
         dir: 'rtl',
         icons: [
           {
-            src: '/icon/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
+            src: '/icon/parent-logo.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'any'
           },
           {
-            src: '/icon/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/icon/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: '/icon/parent-logo.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'maskable'
           }
         ]

@@ -32,15 +32,15 @@ export function SplashScreen() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#349a67',
+        backgroundColor: '#359c67',
         opacity: fadeOut ? 0 : 1,
         pointerEvents: fadeOut ? 'none' : 'auto',
       }}
     >
       <img
-        src="/icon/icon-512x512.png"
+        src="/icon/parent-logo.svg"
         alt="Digi Parent"
-        className="w-[40%] max-w-[160px] object-contain"
+        className="w-[40%] max-w-[200px] object-contain"
       />
     </div>
   )
