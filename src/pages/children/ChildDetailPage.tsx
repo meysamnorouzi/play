@@ -591,7 +591,7 @@ function ChildDetailPage() {
                         <BsFlag className="w-5 h-5 text-gray-800" />
                         <h4 className="font-bold text-gray-900">{goal.title}</h4>
                       </div>
-                      <span className="text-sm font-bold text-gray-800">{Math.round(progress)}%</span>
+                      <span className="text-sm font-bold text-gray-800">{toPersianNumber(Math.round(progress))}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
                       <motion.div

@@ -1,5 +1,4 @@
 import { AiOutlineClose, AiOutlineInbox } from 'react-icons/ai'
-import { toPersianNumber } from '../../utils/numberUtils'
 
 interface Child {
   id: string;
@@ -32,7 +31,8 @@ interface RequestsModalProps {
   onReject?: (requestId: string) => void;
 }
 
-const formatDate = (timestamp: number): string => {
+// English numbers for request card templates
+const formatDateEn = (timestamp: number): string => {
   const date = new Date(timestamp)
   const persianMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
   const day = date.getDate()
@@ -103,7 +103,7 @@ function RequestsModal({ isOpen, onClose, child, requests, onApprove, onReject }
               <h2 className="text-xl font-bold text-gray-900">
                 درخواست‌های {child.firstName} {child.lastName}
               </h2>
-              <p className="text-sm text-gray-500 mt-1">{toPersianNumber(requests.length)} درخواست</p>
+              <p className="text-sm text-gray-500 mt-1" dir="ltr">{requests.length} درخواست</p>
             </div>
             <button
               onClick={onClose}
@@ -133,8 +133,8 @@ function RequestsModal({ isOpen, onClose, child, requests, onApprove, onReject }
                         <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
                           {request.type}
                         </span>
-                        <span className="text-gray-500 text-xs">
-                          {formatDate(request.date)}
+                        <span className="text-gray-500 text-xs" dir="ltr">
+                          {formatDateEn(request.date)}
                         </span>
                       </div>
                     </div>

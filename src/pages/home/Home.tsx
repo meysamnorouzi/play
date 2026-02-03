@@ -745,7 +745,8 @@ function Home() {
                               <p className="text-xs text-gray-500">{formatTime(activity.date)}</p>
                             </div>
                             <p className={`text-base font-bold shrink-0 ${activity.type === 'expense' ? 'text-red-600' : 'text-green-600'}`}>
-                              {activity.type === 'expense' ? '-' : '+'} {formatBalance(activity.amount)}
+                              {formatBalance(activity.amount)}
+                              {activity.type === 'expense' ? '-' : '+'} {" "}
                             </p>
                           </motion.div>
                         ))}

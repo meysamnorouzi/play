@@ -1,25 +1,39 @@
-/**
- * PWA utility functions
- * Service worker registration is handled by vite-plugin-pwa (virtual:pwa-register/react)
- */
+// Utility functions for PWA
+// Service Worker functionality disabled temporarily due to server MIME type issues
+
+export function registerServiceWorker() {
+  // Service Worker registration disabled temporarily
+  // Uncomment below to re-enable service worker registration
+  /*
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('SW registered: ', registration)
+        })
+        .catch((registrationError) => {
+          console.log('SW registration failed: ', registrationError)
+        })
+    })
+  }
+  */
+}
 
 export function isPWAInstalled(): boolean {
-  if (typeof window === 'undefined') return false
-  // Check if running as standalone (installed PWA)
-  if (window.matchMedia('(display-mode: standalone)').matches) return true
-  // Check iOS standalone mode
-  if ((window.navigator as Navigator & { standalone?: boolean }).standalone) return true
-  // Check for display-mode: fullscreen or minimal-ui (alternative PWA modes)
-  if (window.matchMedia('(display-mode: fullscreen)').matches) return true
-  if (window.matchMedia('(display-mode: minimal-ui)').matches) return true
+  // Check if running as standalone
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    return true
+  }
+  
+  // Check iOS standalone
+  if ((window.navigator as any).standalone) {
+    return true
+  }
+  
   return false
 }
 
 export function isPWASupported(): boolean {
-  if (typeof window === 'undefined') return false
-  return 'serviceWorker' in navigator
-}
-
-export function canInstallPWA(): boolean {
-  return isPWASupported() && !isPWAInstalled()
+  return 'serviceWorker' in navigator && 'PushManager' in window
 }

@@ -9,7 +9,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Modal from "../../components/Modal";
 import { Input } from "../../components/ui";
-import { formatBalance } from "../../utils/numberUtils";
+import { formatBalance, toPersianNumber } from "../../utils/numberUtils";
 
 const calculateMoneyFromDigits = (digits: number): number =>
   Math.floor((digits / 100) * 25000);
@@ -292,7 +292,7 @@ function DefineTaskPage() {
                           <span className="text-sm font-semibold">
                             {task.rewardType === "money"
                               ? `${formatBalance(task.reward)} تومان`
-                              : `${task.reward} دیجیت`}
+                              : `${toPersianNumber(task.reward)} دیجیت`}
                           </span>
                         </div>
                       </div>

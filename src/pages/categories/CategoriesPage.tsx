@@ -58,8 +58,8 @@ function CategoriesPage() {
 
   const handleTouchEnd = () => {
     if (touchStartX === null) return;
-    if (touchOffset > SWIPE_THRESHOLD) goPrev();
-    else if (touchOffset < -SWIPE_THRESHOLD) goNext();
+    if (touchOffset > SWIPE_THRESHOLD) goNext();
+    else if (touchOffset < -SWIPE_THRESHOLD) goPrev();
     setTouchStartX(null);
     setTouchOffset(0);
   };
@@ -76,8 +76,8 @@ function CategoriesPage() {
 
   const handleMouseUp = () => {
     if (touchStartX === null) return;
-    if (touchOffset > SWIPE_THRESHOLD) goPrev();
-    else if (touchOffset < -SWIPE_THRESHOLD) goNext();
+    if (touchOffset > SWIPE_THRESHOLD) goNext();
+    else if (touchOffset < -SWIPE_THRESHOLD) goPrev();
     setTouchStartX(null);
     setTouchOffset(0);
   };
@@ -137,7 +137,6 @@ function CategoriesPage() {
           {/* اسلایدر راهنمای نسل Z - سوایپ با دست مثل اینستاگرام */}
           <div
             className="relative w-full overflow-hidden bg-gray-100 touch-pan-y select-none cursor-grab active:cursor-grabbing"
-            dir="ltr"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -149,43 +148,41 @@ function CategoriesPage() {
             style={{ touchAction: "pan-y" }}
           >
             <div
-              className="flex flex-row ease-out"
+              className="flex ease-out"
               style={{
                 width: `${NASLE_Z_SLIDES.length * 100}%`,
-                transform: `translate3d(calc(-${slideIndex * (100 / NASLE_Z_SLIDES.length)}% + ${touchOffset}px), 0, 0)`,
+                transform: `translateX(calc(${slideIndex * (100 / NASLE_Z_SLIDES.length)}% + ${touchOffset}px))`,
                 transition: touchStartX !== null ? "none" : "transform 0.25s ease-out",
               }}
             >
               {NASLE_Z_SLIDES.map((slide) => (
                 <div
                   key={slide.id}
-                  className="shrink-0"
-                  style={{ width: `${100 / NASLE_Z_SLIDES.length}%`, minWidth: `${100 / NASLE_Z_SLIDES.length}%` }}
+                  className="shrink-0 w-full"
+                  style={{ width: `${100 / NASLE_Z_SLIDES.length}%` }}
                 >
                   <img
                     src={slide.src}
                     alt={slide.alt}
-                    className="w-full h-auto max-h-112 object-contain object-top bg-transparent block"
-                    loading="eager"
-                    decoding="async"
+                    className="w-full h-auto max-h-112 object-contain object-top bg-transparent"
                   />
                 </div>
               ))}
             </div>
-          </div>
-          {/* نقطه‌های ناوبری زیر اسلایدر - از راست به چپ */}
-          <div className="flex flex-row-reverse justify-center gap-1.5 mt-3" dir="rtl">
-            {NASLE_Z_SLIDES.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setSlideIndex(i)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  i === slideIndex ? "bg-[#359C67] scale-125" : "bg-gray-300 hover:bg-gray-400"
-                }`}
-                aria-label={`رفتن به اسلاید ${toPersianNumber(i + 1)}`}
-              />
-            ))}
+            {/* نقطه‌های ناوبری */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+              {NASLE_Z_SLIDES.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setSlideIndex(i)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    i === slideIndex ? "bg-white scale-125" : "bg-white/50 hover:bg-white/70"
+                  }`}
+                  aria-label={`رفتن به اسلاید ${toPersianNumber(i + 1)}`}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="">

@@ -535,9 +535,9 @@ function WalletPage() {
                 <div className="relative z-10 h-full flex flex-col justify-between">
                   {/* Top Section - Chip + Card Number */}
                   <div className="flex items-center justify-between">
-                    {/* Card Number - Persian numerals masked */}
-                    <p className="text-white/90 text-base font-medium tracking-widest">
-                      {toPersianNumber("5047 56** **** 1971")}
+                    {/* Card Number - English numerals (back-of-card style) */}
+                    <p className="text-white/90 text-base font-medium tracking-widest" dir="ltr">
+                      5047 56** **** 1971
                     </p>
                     <p className="text-white/90 text-2xl font-semibold lowercase tracking-wide">
                       digicard
@@ -556,8 +556,8 @@ function WalletPage() {
 
                   {/* Bottom Section - digipay + Expiry */}
                   <div className="flex items-end justify-between mt-auto">
-                  <p className="text-white/80 text-sm font-medium">
-                      {toPersianNumber("09/09")}
+                  <p className="text-white/80 text-sm font-medium" dir="ltr">
+                      09/09
                     </p>
                     {/* EMV Chip - خطوط افقی */}
                    <img src="/image/Shetab_Banking_System.png" alt="" className="w-8" />
@@ -737,8 +737,8 @@ function WalletPage() {
                           : "text-red-600"
                         }`}
                     >
-                      {activity.type === "income" ? "+" : "-"}{" "}
                       {formatBalance(activity.amount)}
+                      {activity.type === "income" ? "+" : "-"}{" "}
                     </p>
                     <p className="text-xs sm:text-sm text-gray-500">تومان</p>
                   </div>

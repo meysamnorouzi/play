@@ -1,94 +1,34 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+// Service Worker and PWA disabled temporarily due to server MIME type issues
+// import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
   server: {
     // Allow access from network (mobile devices on same network)
-    host: true,
-    port: 5173,
-    strictPort: false,
+    host: true, // or '0.0.0.0'
+    port: 5173, // Default Vite port, change if needed
+    strictPort: false, // Allow port to be changed if 5173 is busy
   },
   build: {
+    // Ensure proper chunking and module format
     rollupOptions: {
       output: {
+        // Ensure proper module format
         format: 'es',
+        // Preserve file extensions for proper MIME type detection
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',
         assetFileNames: 'assets/[name].[hash].[ext]'
       }
     },
+    // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000
   },
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'prompt', // Show update notification instead of auto-updating
-      injectRegister: 'auto', // Virtual module handles registration when used
-      includeAssets: ['favicon.ico', 'icon/parent-logo.svg', 'font/*.ttf', 'offline.html'],
-      manifest: {
-        name: 'Digi Parent',
-        short_name: 'Digi Parent',
-        description: 'با استفاده از این اپلیکیشن میتوانید به راحتی به تمام امکانات دسترسی داشته باشید',
-        theme_color: '#237147',
-        background_color: '#359c67', // Matches parent-logo.svg green bg
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
-        lang: 'fa',
-        dir: 'rtl',
-        icons: [
-          {
-            src: '/icon/parent-logo.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any'
-          },
-          {
-            src: '/icon/parent-logo.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'maskable'
-          }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,ttf}'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'images-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 30
-              },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          }
-        ]
-      },
-      devOptions: {
-        enabled: true // Enable PWA in dev for testing
-      }
-    })
+    // PWA disabled temporarily (server MIME type issues). Re-enable: uncomment VitePWA import and add VitePWA({...}) here.
   ],
 })

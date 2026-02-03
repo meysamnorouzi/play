@@ -211,7 +211,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif']
+        sans: ['IranSansXFaNum', 'IranSansX', 'system-ui', 'sans-serif']
       },
       colors: {
         gray: {

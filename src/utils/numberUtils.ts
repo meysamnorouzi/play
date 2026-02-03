@@ -4,8 +4,13 @@ export const toPersianNumber = (num: number | string): string => {
   return String(num).replace(/\d/g, (digit) => persianDigits[parseInt(digit)]);
 };
 
-// Format balance as Toman with Persian numbers
+// Format balance as Toman with Persian numbers (۰-۹)
 export const formatBalance = (balance: number): string => {
   return new Intl.NumberFormat('fa-IR').format(balance);
+};
+
+// Format balance with English numbers (0-9) – for wallet card back, request cards, etc.
+export const formatBalanceEn = (balance: number): string => {
+  return new Intl.NumberFormat('en-US').format(balance);
 };
 

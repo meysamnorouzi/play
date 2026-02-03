@@ -6,12 +6,11 @@ import {
   PencilSquareIcon, 
   Cog6ToothIcon, 
   HeartIcon, 
-  ArrowRightOnRectangleIcon,
-  ArrowDownTrayIcon
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { useAuth } from '../../context/AuthContext'
 import EditProfileModal from '../../components/profile/EditProfileModal'
-import { isPWAInstalled } from '../../utils/pwa'
+import { toPersianNumber } from '../../utils/numberUtils'
 
 function ProfilePage() {
   const [showEditModal, setShowEditModal] = useState(false)
@@ -42,15 +41,7 @@ function ProfilePage() {
     navigate('/login')
   }
 
-  const handleInstallApp = () => {
-    localStorage.removeItem('pwa-install-dismissed')
-    window.location.reload()
-  }
-
   const menuItems = [
-    ...(!isPWAInstalled()
-      ? [{ icon: ArrowDownTrayIcon, label: 'نصب اپلیکیشن', color: 'text-emerald-600' as const, onClick: handleInstallApp }]
-      : []),
     { icon: Cog6ToothIcon, label: 'تنظیمات حساب', color: 'text-gray-700', onClick: () => {} },
     { icon: ShoppingCartIcon, label: 'سفارشات', color: 'text-gray-700', badge: '3', onClick: () => {} },
     { icon: HeartIcon, label: 'علاقه‌مندی‌ها', color: 'text-gray-700', onClick: () => {} },
@@ -100,7 +91,7 @@ function ProfilePage() {
           <div className="space-y-2 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">شماره تلفن:</span>
-                <span className="text-gray-900 font-medium" dir="ltr">09163761606</span>
+                <span className="text-gray-900 font-medium" dir="ltr">{toPersianNumber('09163761606')}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">ایمیل:</span>
@@ -108,12 +99,12 @@ function ProfilePage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">کد ملی:</span>
-                <span className="text-gray-900 font-medium" dir="ltr">4120972917</span>
+                <span className="text-gray-900 font-medium" dir="ltr">{toPersianNumber('4120972917')}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">تاریخ تولد:</span>
-                <span className="text-gray-900 font-medium">1384/01/05</span>
+                <span className="text-gray-900 font-medium">{toPersianNumber('1384/01/05')}</span>
               </div>
           </div>
         </div>

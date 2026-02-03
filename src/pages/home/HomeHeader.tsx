@@ -2,42 +2,51 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import MenuModal from '../../components/home/MenuModal'
 
-const DICHI_P_BALANCE_KEY = 'dichiPBalance'
-const DEFAULT_BALANCE = 12000000
-
 function HomeHeader() {
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false)
-  const [totalBalance, setTotalBalance] = useState<number>(() => {
-    const stored = localStorage.getItem(DICHI_P_BALANCE_KEY)
-    if (stored !== null) {
-      const n = parseInt(stored, 10)
-      if (!Number.isNaN(n)) return n
-    }
-    return DEFAULT_BALANCE
-  })
+  const [totalBalance, setTotalBalance] = useState<number>(12000000)
 
   useEffect(() => {
     loadWalletBalance()
-
+    
+    // Listen for balance updates
     const handleBalanceUpdate = () => {
       loadWalletBalance()
     }
-
+    
     window.addEventListener('balanceUpdated', handleBalanceUpdate)
     return () => window.removeEventListener('balanceUpdated', handleBalanceUpdate)
   }, [])
 
   const loadWalletBalance = () => {
-    const stored = localStorage.getItem(DICHI_P_BALANCE_KEY)
-    if (stored !== null) {
-      const n = parseInt(stored, 10)
-      if (!Number.isNaN(n)) {
-        setTotalBalance(n)
-        return
-      }
+    // Load children
+    const storedChildren = localStorage.getItem('childrenList')
+    const parsedChildren = storedChildren ? JSON.parse(storedChildren) : []
+
+    // Calculate total balance
+    let total = 0
+
+    if (parsedChildren.length > 0) {
+      parsedChildren.forEach((child: any) => {
+        // Get wallet balance
+        const walletKey = `childWallet_${child.id}`
+        const storedWallet = localStorage.getItem(walletKey)
+        if (storedWallet) {
+          const walletData = JSON.parse(storedWallet)
+          total += walletData.balance || 0
+        } else {
+          // Create random balance if doesn't exist
+          const randomBalance = Math.floor(Math.random() * 5000000) + 100000
+          const walletData = { balance: randomBalance }
+          localStorage.setItem(walletKey, JSON.stringify(walletData))
+          total += randomBalance
+        }
+      })
+    } else {
+      // If no children, create a default balance
+      total = Math.floor(Math.random() * 10000000) + 5000000
     }
-    localStorage.setItem(DICHI_P_BALANCE_KEY, String(DEFAULT_BALANCE))
-    setTotalBalance(DEFAULT_BALANCE)
+    setTotalBalance(total)
   }
 
   const formatBalance = (balance: number): string => {
